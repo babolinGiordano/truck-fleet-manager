@@ -5,10 +5,9 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { HeaderComponent } from './header/header.component';
 
 @Component({
-  selector: 'app-layout',
-  standalone: true,
-  imports: [CommonModule, RouterModule, SidebarComponent, HeaderComponent],
-  template: `
+    selector: 'app-layout',
+    imports: [CommonModule, RouterModule, SidebarComponent, HeaderComponent],
+    template: `
     <div class="flex h-screen overflow-hidden bg-gray-100">
       <!-- Sidebar -->
       <app-sidebar 

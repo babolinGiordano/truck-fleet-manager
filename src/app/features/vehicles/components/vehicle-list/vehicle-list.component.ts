@@ -8,16 +8,15 @@ import { StatusBadgeComponent } from '../../../../shared/components/status-badge
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
-  selector: 'app-vehicle-list',
-  standalone: true,
-  imports: [
-    CommonModule, 
-    RouterModule, 
-    FormsModule, 
-    StatusBadgeComponent,
-    ConfirmDialogComponent
-  ],
-  template: `
+    selector: 'app-vehicle-list',
+    imports: [
+        CommonModule,
+        RouterModule,
+        FormsModule,
+        StatusBadgeComponent,
+        ConfirmDialogComponent
+    ],
+    template: `
     <div class="space-y-6">
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

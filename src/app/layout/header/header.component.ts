@@ -4,10 +4,9 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-header',
-  standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
-  template: `
+    selector: 'app-header',
+    imports: [CommonModule, RouterModule, FormsModule],
+    template: `
     <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0">
       <div class="flex items-center gap-4">
         <!-- Mobile menu button -->

@@ -2,10 +2,9 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-live-map',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-live-map',
+    imports: [CommonModule],
+    template: `
     <div class="space-y-6">
       <div class="flex items-center justify-between">
         <div>

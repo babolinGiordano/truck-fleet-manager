@@ -8,18 +8,17 @@ import { TripsChartComponent } from './components/trips-chart/trips-chart.compon
 import { MapPreviewComponent } from './components/map-preview/map-preview.component';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    KpiCardComponent,
-    AlertsPanelComponent,
-    RecentTripsComponent,
-    TripsChartComponent,
-    MapPreviewComponent
-  ],
-  template: `
+    selector: 'app-dashboard',
+    imports: [
+        CommonModule,
+        RouterModule,
+        KpiCardComponent,
+        AlertsPanelComponent,
+        RecentTripsComponent,
+        TripsChartComponent,
+        MapPreviewComponent
+    ],
+    template: `
     <!-- KPI Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
       <app-kpi-card

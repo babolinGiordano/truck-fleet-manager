@@ -2,10 +2,9 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-status-badge',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-status-badge',
+    imports: [CommonModule],
+    template: `
     <span 
       class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
       [ngClass]="getBadgeClasses()"

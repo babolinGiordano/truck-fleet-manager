@@ -3,10 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-map-preview',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
-  template: `
+    selector: 'app-map-preview',
+    imports: [CommonModule, RouterModule],
+    template: `
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <div class="p-4 border-b border-gray-100 flex items-center justify-between">
         <div class="flex items-center gap-2">

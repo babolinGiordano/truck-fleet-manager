@@ -16,10 +16,9 @@ interface NavSection {
 }
 
 @Component({
-  selector: 'app-sidebar',
-  standalone: true,
-  imports: [CommonModule, RouterModule, RouterLinkActive],
-  template: `
+    selector: 'app-sidebar',
+    imports: [CommonModule, RouterModule, RouterLinkActive],
+    template: `
     <aside 
       class="flex flex-col flex-shrink-0 transition-all duration-300 h-full"
       [class]="isCollapsed ? 'w-20' : 'w-64'"
@@ -120,7 +119,7 @@ interface NavSection {
       </div>
     </aside>
   `,
-  styles: [`
+    styles: [`
     .dark-scrollbar::-webkit-scrollbar { width: 6px; }
     .dark-scrollbar::-webkit-scrollbar-track { background: #1a1f2e; }
     .dark-scrollbar::-webkit-scrollbar-thumb { background: #3b4255; border-radius: 3px; }

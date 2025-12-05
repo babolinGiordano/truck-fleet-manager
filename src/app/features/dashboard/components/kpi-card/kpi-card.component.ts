@@ -2,10 +2,9 @@ import { Component, Input } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-kpi-card',
-  standalone: true,
-  imports: [CommonModule, DecimalPipe],
-  template: `
+    selector: 'app-kpi-card',
+    imports: [CommonModule, DecimalPipe],
+    template: `
     <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
       <div class="flex items-center justify-between mb-4">
         <div 

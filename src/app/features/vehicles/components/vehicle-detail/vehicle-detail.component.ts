@@ -6,10 +6,9 @@ import { VEHICLE_STATUS_LABELS } from '../../../../models/vehicle.model';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 
 @Component({
-  selector: 'app-vehicle-detail',
-  standalone: true,
-  imports: [CommonModule, RouterModule, StatusBadgeComponent],
-  template: `
+    selector: 'app-vehicle-detail',
+    imports: [CommonModule, RouterModule, StatusBadgeComponent],
+    template: `
     <div class="space-y-6">
       <!-- Back Button & Actions -->
       <div class="flex items-center justify-between">

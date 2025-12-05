@@ -13,10 +13,9 @@ interface RecentTrip {
 }
 
 @Component({
-  selector: 'app-recent-trips',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
-  template: `
+    selector: 'app-recent-trips',
+    imports: [CommonModule, RouterModule],
+    template: `
     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
       <div class="p-4 border-b border-gray-100 flex items-center justify-between">
         <div class="flex items-center gap-2">

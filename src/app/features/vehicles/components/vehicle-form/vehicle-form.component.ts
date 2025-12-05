@@ -6,10 +6,9 @@ import { VehiclesService } from '../../../../core/services/vehicles.service';
 import { VehicleStatus } from '../../../../models/vehicle.model';
 
 @Component({
-  selector: 'app-vehicle-form',
-  standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
-  template: `
+    selector: 'app-vehicle-form',
+    imports: [CommonModule, RouterModule, ReactiveFormsModule],
+    template: `
     <div class="space-y-6">
       <!-- Header -->
       <div class="flex items-center justify-between">

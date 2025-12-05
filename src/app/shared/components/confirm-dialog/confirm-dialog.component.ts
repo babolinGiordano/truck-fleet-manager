@@ -2,10 +2,9 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-confirm-dialog',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-confirm-dialog',
+    imports: [CommonModule],
+    template: `
     <!-- Backdrop -->
     <div 
       class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"

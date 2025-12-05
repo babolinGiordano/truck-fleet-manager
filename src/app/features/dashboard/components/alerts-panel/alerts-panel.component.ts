@@ -10,10 +10,9 @@ interface Alert {
 }
 
 @Component({
-  selector: 'app-alerts-panel',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-alerts-panel',
+    imports: [CommonModule],
+    template: `
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 h-full">
       <div class="p-4 border-b border-gray-100 flex items-center justify-between">
         <div class="flex items-center gap-2">
