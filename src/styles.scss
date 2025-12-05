@@ -1,1 +1,74 @@
-/* You can add global styles to this file, and also import other style files */
+// ================================
+// 1. ANGULAR MATERIAL (deve venire PRIMA)
+// ================================
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$truck-fleet-manager-primary: mat.define-palette(mat.$indigo-palette);
+$truck-fleet-manager-accent: mat.define-palette(mat.$orange-palette, A200, A100, A400); // Cambiato in orange per matchare il tema
+$truck-fleet-manager-warn: mat.define-palette(mat.$red-palette);
+
+$truck-fleet-manager-theme: mat.define-light-theme((
+  color: (
+    primary: $truck-fleet-manager-primary,
+    accent: $truck-fleet-manager-accent,
+    warn: $truck-fleet-manager-warn,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0
+));
+
+@include mat.all-component-themes($truck-fleet-manager-theme);
+
+// ================================
+// 2. TAILWIND (deve venire DOPO @use)
+// ================================
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// ================================
+// 3. FONTS
+// ================================
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
+
+// ================================
+// 4. GLOBAL STYLES
+// ================================
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+// ================================
+// 5. SCROLLBAR
+// ================================
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+.dark-scrollbar {
+  &::-webkit-scrollbar-track {
+    background: #1a1f2e;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #3b4255;
+  }
+}

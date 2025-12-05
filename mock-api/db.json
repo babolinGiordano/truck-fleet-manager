@@ -1,0 +1,316 @@
+{
+  "vehicles": [
+    {
+      "id": "v1",
+      "plate": "FH123AB",
+      "brand": "Iveco",
+      "model": "Stralis",
+      "year": 2021,
+      "status": "inactive",
+      "currentDriverId": "d1",
+      "lastPosition": {
+        "lat": 43.7696,
+        "lng": 11.2558,
+        "timestamp": "2024-11-24T10:30:00Z"
+      },
+      "kmTotal": 245000,
+      "insuranceExpiry": "2025-06-15",
+      "revisionExpiry": "2025-03-20",
+      "createdAt": "2021-03-15T00:00:00Z",
+      "updatedAt": "2025-12-05T12:15:23.474Z",
+      "notes": ""
+    },
+    {
+      "id": "v2",
+      "plate": "DE456FG",
+      "brand": "MAN",
+      "model": "TGX",
+      "year": 2020,
+      "status": "in_transit",
+      "currentDriverId": "d2",
+      "lastPosition": {
+        "lat": 41.9028,
+        "lng": 12.4964,
+        "timestamp": "2024-11-24T10:25:00Z"
+      },
+      "kmTotal": 312000,
+      "insuranceExpiry": "2025-04-10",
+      "revisionExpiry": "2025-01-15",
+      "createdAt": "2020-06-20T00:00:00Z",
+      "updatedAt": "2024-11-24T10:25:00Z"
+    },
+    {
+      "id": "v3",
+      "plate": "GH789CD",
+      "brand": "Scania",
+      "model": "R500",
+      "year": 2022,
+      "status": "available",
+      "kmTotal": 156000,
+      "insuranceExpiry": "2025-08-22",
+      "revisionExpiry": "2025-05-10",
+      "createdAt": "2022-01-10T00:00:00Z",
+      "updatedAt": "2024-11-20T14:00:00Z"
+    },
+    {
+      "id": "v4",
+      "plate": "LM012NO",
+      "brand": "Volvo",
+      "model": "FH16",
+      "year": 2019,
+      "status": "maintenance",
+      "kmTotal": 420000,
+      "insuranceExpiry": "2025-02-28",
+      "revisionExpiry": "2024-12-05",
+      "notes": "In officina per tagliando",
+      "createdAt": "2019-09-05T00:00:00Z",
+      "updatedAt": "2024-11-22T08:00:00Z"
+    },
+    {
+      "id": "v5",
+      "plate": "PQ345RS",
+      "brand": "Mercedes",
+      "model": "Actros",
+      "year": 2023,
+      "status": "in_transit",
+      "currentDriverId": "d3",
+      "lastPosition": {
+        "lat": 45.4642,
+        "lng": 9.19,
+        "timestamp": "2024-11-24T10:28:00Z"
+      },
+      "kmTotal": 78000,
+      "insuranceExpiry": "2025-11-30",
+      "revisionExpiry": "2025-09-15",
+      "createdAt": "2023-02-14T00:00:00Z",
+      "updatedAt": "2024-11-24T10:28:00Z"
+    }
+  ],
+  "drivers": [
+    {
+      "id": "d1",
+      "firstName": "Marco",
+      "lastName": "Bianchi",
+      "fiscalCode": "BNCMRC80A01H501Z",
+      "phone": "+39 333 1234567",
+      "email": "marco.bianchi@email.com",
+      "licenseNumber": "MI12345678",
+      "licenseExpiry": "2024-12-01",
+      "cqcExpiry": "2025-06-15",
+      "status": "active",
+      "assignedVehicleId": "v1",
+      "hireDate": "2018-03-15",
+      "createdAt": "2018-03-15T00:00:00Z",
+      "updatedAt": "2024-11-24T08:00:00Z"
+    },
+    {
+      "id": "d2",
+      "firstName": "Giuseppe",
+      "lastName": "Rossi",
+      "fiscalCode": "RSSGPP75B15F205X",
+      "phone": "+39 334 2345678",
+      "email": "giuseppe.rossi@email.com",
+      "licenseNumber": "RM23456789",
+      "licenseExpiry": "2026-04-10",
+      "cqcExpiry": "2025-09-20",
+      "status": "active",
+      "assignedVehicleId": "v2",
+      "hireDate": "2019-06-01",
+      "createdAt": "2019-06-01T00:00:00Z",
+      "updatedAt": "2024-11-24T08:00:00Z"
+    },
+    {
+      "id": "d3",
+      "firstName": "Antonio",
+      "lastName": "Verdi",
+      "fiscalCode": "VRDNTN82C20L219Y",
+      "phone": "+39 335 3456789",
+      "email": "antonio.verdi@email.com",
+      "licenseNumber": "TO34567890",
+      "licenseExpiry": "2027-01-25",
+      "cqcExpiry": "2026-02-10",
+      "status": "active",
+      "assignedVehicleId": "v5",
+      "hireDate": "2020-01-15",
+      "createdAt": "2020-01-15T00:00:00Z",
+      "updatedAt": "2024-11-24T08:00:00Z"
+    }
+  ],
+  "clients": [
+    {
+      "id": "c1",
+      "companyName": "TechCorp SRL",
+      "vatNumber": "IT12345678901",
+      "address": "Via dell'Industria 45",
+      "city": "Milano",
+      "province": "MI",
+      "postalCode": "20100",
+      "country": "Italia",
+      "phone": "+39 02 1234567",
+      "email": "info@techcorp.it",
+      "pec": "techcorp@pec.it",
+      "sdiCode": "ABCD123",
+      "contactPerson": "Laura Martini",
+      "isActive": true,
+      "createdAt": "2020-01-10T00:00:00Z",
+      "updatedAt": "2024-10-15T14:30:00Z"
+    },
+    {
+      "id": "c2",
+      "companyName": "LogiTrans SRL",
+      "vatNumber": "IT98765432109",
+      "address": "Via Roma 123",
+      "city": "Torino",
+      "province": "TO",
+      "postalCode": "10100",
+      "country": "Italia",
+      "phone": "+39 011 7654321",
+      "email": "logistica@logitrans.it",
+      "pec": "logitrans@pec.it",
+      "sdiCode": "EFGH456",
+      "contactPerson": "Roberto Conti",
+      "isActive": true,
+      "createdAt": "2019-05-20T00:00:00Z",
+      "updatedAt": "2024-11-10T09:00:00Z"
+    },
+    {
+      "id": "c3",
+      "companyName": "FastDelivery SpA",
+      "vatNumber": "IT11223344556",
+      "address": "Viale Europa 78",
+      "city": "Bologna",
+      "province": "BO",
+      "postalCode": "40100",
+      "country": "Italia",
+      "phone": "+39 051 9876543",
+      "email": "ordini@fastdelivery.it",
+      "pec": "fastdelivery@pec.it",
+      "sdiCode": "IJKL789",
+      "contactPerson": "Sara Ricci",
+      "isActive": true,
+      "createdAt": "2021-03-08T00:00:00Z",
+      "updatedAt": "2024-11-20T16:45:00Z"
+    }
+  ],
+  "trips": [
+    {
+      "id": "t1",
+      "tripNumber": "VG-2024-001",
+      "vehicleId": "v1",
+      "driverId": "d1",
+      "clientId": "c1",
+      "origin": {
+        "address": "Via dell'Industria 45",
+        "city": "Milano",
+        "province": "MI",
+        "postalCode": "20100",
+        "country": "Italia",
+        "lat": 45.4642,
+        "lng": 9.19
+      },
+      "destination": {
+        "address": "Via Tiburtina 500",
+        "city": "Roma",
+        "province": "RM",
+        "postalCode": "00159",
+        "country": "Italia",
+        "lat": 41.9028,
+        "lng": 12.4964
+      },
+      "cargo": {
+        "description": "Componenti elettronici",
+        "weight": 8500,
+        "packages": 45,
+        "isADR": false
+      },
+      "status": "completed",
+      "plannedDeparture": "2024-11-23T06:00:00Z",
+      "actualDeparture": "2024-11-23T06:15:00Z",
+      "plannedArrival": "2024-11-23T14:00:00Z",
+      "actualArrival": "2024-11-23T13:45:00Z",
+      "kmPlanned": 574,
+      "kmActual": 580,
+      "price": 850,
+      "createdAt": "2024-11-20T10:00:00Z",
+      "updatedAt": "2024-11-23T13:45:00Z"
+    },
+    {
+      "id": "t2",
+      "tripNumber": "VG-2024-002",
+      "vehicleId": "v2",
+      "driverId": "d2",
+      "clientId": "c2",
+      "origin": {
+        "address": "Via Roma 123",
+        "city": "Torino",
+        "province": "TO",
+        "postalCode": "10100",
+        "country": "Italia",
+        "lat": 45.0703,
+        "lng": 7.6869
+      },
+      "destination": {
+        "address": "Via Toledo 100",
+        "city": "Napoli",
+        "province": "NA",
+        "postalCode": "80100",
+        "country": "Italia",
+        "lat": 40.8518,
+        "lng": 14.2681
+      },
+      "cargo": {
+        "description": "Macchinari industriali",
+        "weight": 12000,
+        "packages": 8,
+        "isADR": false
+      },
+      "status": "in_progress",
+      "plannedDeparture": "2024-11-24T05:00:00Z",
+      "actualDeparture": "2024-11-24T05:10:00Z",
+      "plannedArrival": "2024-11-24T16:00:00Z",
+      "kmPlanned": 912,
+      "price": 1200,
+      "createdAt": "2024-11-21T14:00:00Z",
+      "updatedAt": "2024-11-24T05:10:00Z"
+    },
+    {
+      "id": "t3",
+      "tripNumber": "VG-2024-003",
+      "vehicleId": "v3",
+      "driverId": "d3",
+      "clientId": "c3",
+      "origin": {
+        "address": "Viale Europa 78",
+        "city": "Bologna",
+        "province": "BO",
+        "postalCode": "40100",
+        "country": "Italia",
+        "lat": 44.4949,
+        "lng": 11.3426
+      },
+      "destination": {
+        "address": "Via Sparano 100",
+        "city": "Bari",
+        "province": "BA",
+        "postalCode": "70100",
+        "country": "Italia",
+        "lat": 41.1171,
+        "lng": 16.8719
+      },
+      "cargo": {
+        "description": "Prodotti alimentari",
+        "weight": 15000,
+        "packages": 120,
+        "isADR": false,
+        "temperature": 4
+      },
+      "status": "planned",
+      "plannedDeparture": "2024-11-25T04:00:00Z",
+      "plannedArrival": "2024-11-25T12:00:00Z",
+      "kmPlanned": 680,
+      "price": 680,
+      "createdAt": "2024-11-22T09:30:00Z",
+      "updatedAt": "2024-11-22T09:30:00Z"
+    }
+  ]
+}
