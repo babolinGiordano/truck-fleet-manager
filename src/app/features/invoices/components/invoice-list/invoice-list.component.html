@@ -14,6 +14,23 @@
         </a>
     </div>
 
+    <!-- Client Filter Banner -->
+    @if (filteringClient(); as client) {
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <span class="material-icons-outlined text-blue-600">filter_alt</span>
+            <p class="text-blue-800">
+                Visualizzando fatture per: <strong>{{ client.companyName }}</strong>
+            </p>
+        </div>
+        <button (click)="clearClientFilter()" routerLink="/invoices"
+            class="flex items-center gap-1 px-3 py-1 text-blue-600 hover:bg-blue-100 rounded-lg transition-all">
+            <span class="material-icons-outlined text-sm">close</span>
+            Rimuovi filtro
+        </button>
+    </div>
+    }
+
     <!-- Filters & Search -->
     <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
         <div class="flex flex-col md:flex-row gap-4">

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TripsService } from '../../../../core/services/trips.service';
 import { VehiclesService } from '../../../../core/services/vehicles.service';
@@ -18,6 +18,7 @@ export class TripFormComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private tripsService = inject(TripsService);
   vehiclesService = inject(VehiclesService);
   driversService = inject(DriversService);
@@ -43,6 +44,37 @@ export class TripFormComponent implements OnInit {
 
     if (this.isEditMode && this.id) {
       this.loadTrip();
+    } else {
+      // Check for query params (new trip from client/driver detail)
+      this.route.queryParams.subscribe(params => {
+        const clientId = params['clientId'];
+        const driverId = params['driverId'];
+
+        if (clientId) {
+          this.form.patchValue({ clientId });
+          // Pre-fill origin with client address
+          const client = this.clientsService.clients().find(c => c.id === clientId);
+          if (client) {
+            this.form.patchValue({
+              originCompanyName: client.companyName,
+              originAddress: client.address,
+              originCity: client.city,
+              originProvince: client.province,
+              originPostalCode: client.postalCode,
+              originCountry: client.country
+            });
+          }
+        }
+
+        if (driverId) {
+          this.form.patchValue({ driverId });
+          // Pre-fill vehicle if driver has one assigned
+          const driver = this.driversService.drivers().find(d => d.id === driverId);
+          if (driver?.assignedVehicleId) {
+            this.form.patchValue({ vehicleId: driver.assignedVehicleId });
+          }
+        }
+      });
     }
   }
 

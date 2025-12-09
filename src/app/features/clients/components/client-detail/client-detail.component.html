@@ -176,21 +176,24 @@
             <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Azioni Rapide</h2>
                 <div class="space-y-2">
-                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                    <a [routerLink]="['/invoices']" [queryParams]="{clientId: client.id}"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
                                hover:bg-gray-50 rounded-lg transition-all">
                         <span class="material-icons-outlined">receipt_long</span>
                         Visualizza Fatture
-                    </button>
-                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                    </a>
+                    <a [routerLink]="['/trips']" [queryParams]="{clientId: client.id}"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
                                hover:bg-gray-50 rounded-lg transition-all">
                         <span class="material-icons-outlined">route</span>
                         Visualizza Viaggi
-                    </button>
-                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                    </a>
+                    <a [routerLink]="['/trips', 'new']" [queryParams]="{clientId: client.id}"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
                                hover:bg-gray-50 rounded-lg transition-all">
                         <span class="material-icons-outlined">add_circle</span>
                         Nuovo Viaggio
-                    </button>
+                    </a>
                 </div>
             </div>
 

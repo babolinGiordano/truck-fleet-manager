@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { TripsService } from '../../../../core/services/trips.service';
 import { VehiclesService } from '../../../../core/services/vehicles.service';
 import { DriversService } from '../../../../core/services/drivers.service';
-import { Trip, TripStatus, TRIP_STATUS_LABELS, Vehicle, Driver } from '../../../../models';
+import { ClientsService } from '../../../../core/services/clients.service';
+import { Trip, TripStatus, TRIP_STATUS_LABELS, Vehicle, Driver, Client } from '../../../../models';
 
 @Component({
   selector: 'app-trip-list',
@@ -21,13 +22,17 @@ import { Trip, TripStatus, TRIP_STATUS_LABELS, Vehicle, Driver } from '../../../
   templateUrl: './trip-list.component.html'
 })
 export class TripListComponent implements OnInit {
+  private route = inject(ActivatedRoute);
   tripsService = inject(TripsService);
   private vehiclesService = inject(VehiclesService);
   private driversService = inject(DriversService);
+  private clientsService = inject(ClientsService);
 
   searchQuery = signal('');
   statusFilter = signal<TripStatus | null>(null);
+  clientIdFilter = signal<string | null>(null);
   tripToDelete = signal<Trip | null>(null);
+  filteringClient = signal<Client | null>(null);
 
   statusLabels = TRIP_STATUS_LABELS;
 
@@ -40,6 +45,12 @@ export class TripListComponent implements OnInit {
 
   filteredTrips = computed(() => {
     let trips = this.tripsService.trips();
+
+    // Filter by clientId (from query param)
+    const clientId = this.clientIdFilter();
+    if (clientId) {
+      trips = trips.filter(t => t.clientId === clientId);
+    }
 
     // Filter by status
     const status = this.statusFilter();
@@ -88,6 +99,23 @@ export class TripListComponent implements OnInit {
     this.tripsService.loadTrips();
     this.vehiclesService.loadVehicles();
     this.driversService.loadDrivers();
+    this.clientsService.loadClients();
+
+    // Check for clientId query param
+    this.route.queryParams.subscribe(params => {
+      const clientId = params['clientId'];
+      if (clientId) {
+        this.clientIdFilter.set(clientId);
+        // Find the client to display name
+        const client = this.clientsService.clients().find(c => c.id === clientId);
+        this.filteringClient.set(client || null);
+      }
+    });
+  }
+
+  clearClientFilter(): void {
+    this.clientIdFilter.set(null);
+    this.filteringClient.set(null);
   }
 
   onSearchChange(event: Event): void {

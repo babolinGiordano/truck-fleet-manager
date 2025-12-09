@@ -1,9 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DriversService } from '../../../../core/services/drivers.service';
+import { VehiclesService } from '../../../../core/services/vehicles.service';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { Driver, DRIVER_STATUS_LABELS, DriverStatus } from '../../../../models';
+import { Driver, DRIVER_STATUS_LABELS, DriverStatus, Vehicle } from '../../../../models';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -20,6 +21,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class DriverListComponent {
   driversService = inject(DriversService);
+  private vehiclesService = inject(VehiclesService);
 
   searchQuery = signal('');
   statusFilter = signal<DriverStatus | null>(null);
@@ -45,12 +47,25 @@ export class DriverListComponent {
     // Filter by search query
     const query = this.searchQuery().toLowerCase().trim();
     if (query) {
-      drivers = drivers.filter(d =>
-        d.firstName.toLowerCase().includes(query) ||
-        d.lastName.toLowerCase().includes(query) ||
-        d.fiscalCode.toLowerCase().includes(query) ||
-        d.phone.includes(query)
-      );
+      const vehicles = this.vehiclesService.vehicles();
+
+      drivers = drivers.filter(d => {
+        // Search in driver fields
+        if (d.firstName.toLowerCase().includes(query)) return true;
+        if (d.lastName.toLowerCase().includes(query)) return true;
+        if (d.fiscalCode.toLowerCase().includes(query)) return true;
+        if (d.phone.includes(query)) return true;
+
+        // Search in vehicle plate
+        if (d.assignedVehicleId) {
+          const vehicle = vehicles.find(v => v.id === d.assignedVehicleId);
+          if (vehicle?.plate.toLowerCase().includes(query)) return true;
+          if (vehicle?.brand.toLowerCase().includes(query)) return true;
+          if (vehicle?.model.toLowerCase().includes(query)) return true;
+        }
+
+        return false;
+      });
     }
 
     return drivers;
@@ -63,6 +78,12 @@ export class DriverListComponent {
 
   ngOnInit(): void {
     this.driversService.loadDrivers();
+    this.vehiclesService.loadVehicles();
+  }
+
+  getVehicle(vehicleId: string | undefined): Vehicle | null {
+    if (!vehicleId) return null;
+    return this.vehiclesService.vehicles().find(v => v.id === vehicleId) || null;
   }
 
   isExpiringSoon(dateStr: string): boolean {

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -20,12 +20,15 @@ import { Invoice, InvoiceStatus, INVOICE_STATUS_LABELS, Client } from '../../../
   templateUrl: './invoice-list.component.html'
 })
 export class InvoiceListComponent implements OnInit {
+  private route = inject(ActivatedRoute);
   invoicesService = inject(InvoicesService);
   private clientsService = inject(ClientsService);
 
   searchQuery = signal('');
   statusFilter = signal<InvoiceStatus | null>(null);
+  clientIdFilter = signal<string | null>(null);
   invoiceToDelete = signal<Invoice | null>(null);
+  filteringClient = signal<Client | null>(null);
 
   statusLabels = INVOICE_STATUS_LABELS;
 
@@ -39,6 +42,12 @@ export class InvoiceListComponent implements OnInit {
 
   filteredInvoices = computed(() => {
     let invoices = this.invoicesService.invoices();
+
+    // Filter by clientId (from query param)
+    const clientId = this.clientIdFilter();
+    if (clientId) {
+      invoices = invoices.filter(i => i.clientId === clientId);
+    }
 
     // Filter by status
     const status = this.statusFilter();
@@ -71,6 +80,22 @@ export class InvoiceListComponent implements OnInit {
   ngOnInit(): void {
     this.invoicesService.loadInvoices();
     this.clientsService.loadClients();
+
+    // Check for clientId query param
+    this.route.queryParams.subscribe(params => {
+      const clientId = params['clientId'];
+      if (clientId) {
+        this.clientIdFilter.set(clientId);
+        // Find the client to display name
+        const client = this.clientsService.clients().find(c => c.id === clientId);
+        this.filteringClient.set(client || null);
+      }
+    });
+  }
+
+  clearClientFilter(): void {
+    this.clientIdFilter.set(null);
+    this.filteringClient.set(null);
   }
 
   onSearchChange(event: Event): void {
