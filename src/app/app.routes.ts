@@ -28,8 +28,8 @@ export const routes: Routes = [
       },
       {
         path: 'trips',
-        loadComponent: () => import('./features/trips/trip-list.component')
-          .then(m => m.TripListComponent)
+        loadChildren: () => import('./features/trips/trips.routes')
+          .then(m => m.TRIPS_ROUTES)
       },
       {
         path: 'clients',

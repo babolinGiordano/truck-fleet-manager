@@ -21,7 +21,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 export class VehicleListComponent implements OnInit {
   vehiclesService = inject(VehiclesService);
 
-  searchQuery = '';
+  searchQuery = signal('');
   statusFilter = signal<VehicleStatus | null>(null);
   vehicleToDelete = signal<Vehicle | null>(null);
 
@@ -44,7 +44,7 @@ export class VehicleListComponent implements OnInit {
     }
 
     // Filter by search query
-    const query = this.searchQuery.toLowerCase().trim();
+    const query = this.searchQuery().toLowerCase().trim();
     if (query) {
       vehicles = vehicles.filter(v =>
         v.plate.toLowerCase().includes(query) ||
@@ -58,6 +58,11 @@ export class VehicleListComponent implements OnInit {
 
   ngOnInit(): void {
     this.vehiclesService.loadVehicles();
+  }
+
+  onSearchChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.searchQuery.set(input.value);
   }
 
   isExpiringSoon(dateStr: string): boolean {

@@ -21,7 +21,7 @@ import { FormsModule } from '@angular/forms';
 export class DriverListComponent {
   driversService = inject(DriversService);
 
-  searchQuery = '';
+  searchQuery = signal('');
   statusFilter = signal<DriverStatus | null>(null);
   driverToDelete = signal<Driver | null>(null);
 
@@ -43,7 +43,7 @@ export class DriverListComponent {
     }
 
     // Filter by search query
-    const query = this.searchQuery.toLowerCase().trim();
+    const query = this.searchQuery().toLowerCase().trim();
     if (query) {
       drivers = drivers.filter(d =>
         d.firstName.toLowerCase().includes(query) ||
@@ -55,6 +55,11 @@ export class DriverListComponent {
 
     return drivers;
   });
+
+  onSearchChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.searchQuery.set(input.value);
+  }
 
   ngOnInit(): void {
     this.driversService.loadDrivers();

@@ -21,6 +21,7 @@ export interface Trip {
 }
 
 export interface TripLocation {
+  companyName?: string;
   address: string;
   city: string;
   province: string;

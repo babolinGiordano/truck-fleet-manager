@@ -2,15 +2,15 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">Autisti</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Viaggi</h1>
             <p class="text-gray-500 mt-1">
-                {{ driversService.driverCount() }} autisti totali
+                {{ tripsService.tripCount() }} viaggi totali
             </p>
         </div>
-        <a routerLink="new" class="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dark 
+        <a routerLink="new" class="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dark
                  text-white rounded-lg font-medium transition-all">
             <span class="material-icons-outlined">add</span>
-            Nuovo Autista
+            Nuovo Viaggio
         </a>
     </div>
 
@@ -22,7 +22,7 @@
                 <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                     search
                 </span>
-                <input type="text" placeholder="Cerca per nome, cognome, codice fiscale..."
+                <input type="text" placeholder="Cerca per numero, citta, azienda, merce..."
                     [value]="searchQuery()" (input)="onSearchChange($event)"
                     class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg
                      focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
@@ -31,15 +31,15 @@
             <!-- Status Filter -->
             <div class="flex gap-2 flex-wrap">
                 <button (click)="statusFilter.set(null)" class="px-4 py-2 rounded-lg font-medium text-sm transition-all"
-                    [ngClass]="statusFilter() === null 
-                ? 'bg-accent text-white' 
+                    [ngClass]="statusFilter() === null
+                ? 'bg-accent text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
                     Tutti
                 </button>
                 @for (status of statusOptions; track status.value) {
                 <button (click)="statusFilter.set(status.value)"
-                    class="px-4 py-2 rounded-lg font-medium text-sm transition-all" [ngClass]="statusFilter() === status.value 
-                  ? 'bg-accent text-white' 
+                    class="px-4 py-2 rounded-lg font-medium text-sm transition-all" [ngClass]="statusFilter() === status.value
+                  ? 'bg-accent text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
                     {{ status.label }}
                 </button>
@@ -52,82 +52,89 @@
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <span class="material-icons-outlined text-green-600">check_circle</span>
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-blue-600">schedule</span>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-gray-800">{{ driversService.activeCount() }}</p>
-                    <p class="text-xs text-gray-500">Disponibili</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ tripsService.plannedCount() }}</p>
+                    <p class="text-xs text-gray-500">Pianificati</p>
                 </div>
             </div>
         </div>
         <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <span class="material-icons-outlined text-amber-600">build</span>
+                    <span class="material-icons-outlined text-amber-600">local_shipping</span>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-gray-800">
-                        {{ driversService.driversByStatus().on_leave.length }}
-                    </p>
-                    <p class="text-xs text-gray-500">In Ferie</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ tripsService.inProgressCount() }}</p>
+                    <p class="text-xs text-gray-500">In Corso</p>
                 </div>
             </div>
         </div>
         <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <span class="material-icons-outlined text-gray-600">block</span>
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-green-600">check_circle</span>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-gray-800">
-                        {{ driversService.driversByStatus().inactive.length }}
-                    </p>
-                    <p class="text-xs text-gray-500">Inattivi</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ tripsService.completedCount() }}</p>
+                    <p class="text-xs text-gray-500">Completati</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-red-600">cancel</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-800">{{ tripsService.cancelledCount() }}</p>
+                    <p class="text-xs text-gray-500">Annullati</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Loading State -->
-    @if (driversService.loading()) {
+    @if (tripsService.loading()) {
     <div class="flex items-center justify-center py-12">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
     </div>
     }
 
     <!-- Error State -->
-    @if (driversService.error()) {
+    @if (tripsService.error()) {
     <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
         <span class="material-icons-outlined text-red-500">error</span>
-        <p class="text-red-700">{{ driversService.error() }}</p>
-        <button (click)="driversService.loadDrivers()" class="ml-auto text-red-600 hover:text-red-800 font-medium">
+        <p class="text-red-700">{{ tripsService.error() }}</p>
+        <button (click)="tripsService.loadTrips()" class="ml-auto text-red-600 hover:text-red-800 font-medium">
             Riprova
         </button>
     </div>
     }
 
-    <!-- Drivers Table -->
-    @if (!driversService.loading() && !driversService.error()) {
+    <!-- Trips Table -->
+    @if (!tripsService.loading() && !tripsService.error()) {
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Autista
+                            Viaggio
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Contatti
+                            Tratta
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Veicolo / Autista
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Merce
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             Stato
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Patente
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Scadenze
                         </th>
                         <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             Azioni
@@ -135,64 +142,89 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    @for (driver of filteredDrivers(); track driver.id) {
+                    @for (trip of filteredTrips(); track trip.id) {
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
-                                    <span class="material-icons-outlined text-accent">person</span>
+                                    <span class="material-icons-outlined text-accent">route</span>
                                 </div>
                                 <div>
-                                    <p class="font-medium text-gray-800">{{ driver.firstName }} {{ driver.lastName }}</p>
-                                    <p class="text-sm text-gray-500 font-mono">{{ driver.fiscalCode }}</p>
+                                    <p class="font-mono font-medium text-gray-800">{{ trip.tripNumber }}</p>
+                                    <p class="text-sm text-gray-500">{{ trip.price | currency:'EUR':'symbol':'1.0-0':'it-IT' }}</p>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4">
                             <div class="space-y-1">
-                                <p class="text-sm text-gray-800">{{ driver.phone }}</p>
-                                @if (driver.email) {
-                                    <p class="text-sm text-gray-500">{{ driver.email }}</p>
-                                }
+                                <div class="flex items-center gap-2">
+                                    <span class="material-icons-outlined text-green-500 text-sm">trip_origin</span>
+                                    <div class="text-sm">
+                                        @if (trip.origin.companyName) {
+                                        <span class="font-medium text-gray-800">{{ trip.origin.companyName }}</span>
+                                        <span class="text-gray-400"> - </span>
+                                        }
+                                        <span class="text-gray-600">{{ trip.origin.city }} ({{ trip.origin.province }})</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="material-icons-outlined text-red-500 text-sm">location_on</span>
+                                    <div class="text-sm">
+                                        @if (trip.destination.companyName) {
+                                        <span class="font-medium text-gray-800">{{ trip.destination.companyName }}</span>
+                                        <span class="text-gray-400"> - </span>
+                                        }
+                                        <span class="text-gray-600">{{ trip.destination.city }} ({{ trip.destination.province }})</span>
+                                    </div>
+                                </div>
                             </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <app-status-badge [status]="driver.status" [labels]="statusLabels" />
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="font-mono text-gray-800">{{ driver.licenseNumber }}</span>
                         </td>
                         <td class="px-6 py-4">
                             <div class="space-y-1">
-                                <p class="text-xs"
-                                    [ngClass]="isExpiringSoon(driver.licenseExpiry) ? 'text-red-600 font-medium' : 'text-gray-500'">
-                                    Patente: {{ driver.licenseExpiry | date:'dd/MM/yyyy' }}
-                                </p>
-                                <p class="text-xs"
-                                    [ngClass]="isExpiringSoon(driver.cqcExpiry) ? 'text-red-600 font-medium' : 'text-gray-500'">
-                                    CQC: {{ driver.cqcExpiry | date:'dd/MM/yyyy' }}
-                                </p>
-                                @if (driver.adrExpiry) {
-                                    <p class="text-xs"
-                                        [ngClass]="isExpiringSoon(driver.adrExpiry) ? 'text-red-600 font-medium' : 'text-gray-500'">
-                                        ADR: {{ driver.adrExpiry | date:'dd/MM/yyyy' }}
-                                    </p>
+                                @if (getVehicle(trip.vehicleId); as vehicle) {
+                                <div class="flex items-center gap-2">
+                                    <span class="material-icons-outlined text-gray-400 text-sm">local_shipping</span>
+                                    <span class="text-sm text-gray-800">{{ vehicle.plate }}</span>
+                                </div>
+                                }
+                                @if (getDriver(trip.driverId); as driver) {
+                                <div class="flex items-center gap-2">
+                                    <span class="material-icons-outlined text-gray-400 text-sm">person</span>
+                                    <span class="text-sm text-gray-600">{{ driver.firstName }} {{ driver.lastName }}</span>
+                                </div>
+                                }
+                                @if (!getVehicle(trip.vehicleId) && !getDriver(trip.driverId)) {
+                                <span class="text-sm text-gray-400 italic">Non assegnato</span>
                                 }
                             </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div>
+                                <p class="text-sm text-gray-800">{{ trip.cargo.description }}</p>
+                                <p class="text-xs text-gray-500">
+                                    {{ trip.cargo.weight | number:'1.0-0':'it-IT' }} kg
+                                    @if (trip.cargo.isADR) {
+                                    <span class="ml-1 px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium">ADR</span>
+                                    }
+                                </p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <app-status-badge [status]="trip.status" [labels]="statusLabels" />
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-end gap-2">
-                                <a [routerLink]="[driver.id]"
+                                <a [routerLink]="[trip.id]"
                                     class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
                                     title="Dettagli">
                                     <span class="material-icons-outlined text-xl">visibility</span>
                                 </a>
-                                <a [routerLink]="[driver.id, 'edit']"
+                                <a [routerLink]="[trip.id, 'edit']"
                                     class="p-2 text-gray-400 hover:text-accent hover:bg-accent/10 rounded-lg transition-all"
                                     title="Modifica">
                                     <span class="material-icons-outlined text-xl">edit</span>
                                 </a>
-                                <button (click)="confirmDelete(driver)"
+                                <button (click)="confirmDelete(trip)"
                                     class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                     title="Elimina">
                                     <span class="material-icons-outlined text-xl">delete</span>
@@ -205,14 +237,14 @@
                         <td colspan="6" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <span class="material-icons-outlined text-5xl text-gray-300 mb-3">
-                                    person
+                                    route
                                 </span>
-                                <p class="text-gray-500 font-medium">Nessun autista trovato</p>
+                                <p class="text-gray-500 font-medium">Nessun viaggio trovato</p>
                                 <p class="text-gray-400 text-sm mt-1">
                                     @if (searchQuery() || statusFilter()) {
                                     Prova a modificare i filtri di ricerca
                                     } @else {
-                                    Aggiungi il tuo primo autista
+                                    Aggiungi il tuo primo viaggio
                                     }
                                 </p>
                             </div>
@@ -227,8 +259,8 @@
 </div>
 
 <!-- Confirm Delete Dialog -->
-@if (driverToDelete()) {
-<app-confirm-dialog title="Elimina Autista"
-    [message]="'Sei sicuro di voler eliminare l\'autista ' + driverToDelete()!.firstName + ' ' + driverToDelete()!.lastName + '?'" confirmText="Elimina"
-    confirmColor="red" (confirm)="deleteDriver()" (cancel)="driverToDelete.set(null)" />
+@if (tripToDelete()) {
+<app-confirm-dialog title="Elimina Viaggio"
+    [message]="'Sei sicuro di voler eliminare il viaggio ' + tripToDelete()!.tripNumber + '?'" confirmText="Elimina"
+    confirmColor="red" (confirm)="deleteTrip()" (cancel)="tripToDelete.set(null)" />
 }

@@ -1,0 +1,402 @@
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <a routerLink="/trips"
+                class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors mb-2">
+                <span class="material-icons-outlined">arrow_back</span>
+                Torna alla lista
+            </a>
+            <h1 class="text-2xl font-bold text-gray-800">
+                {{ isEditMode ? 'Modifica Viaggio' : 'Nuovo Viaggio' }}
+            </h1>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Basic Info -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Informazioni Base</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Trip Number -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Numero Viaggio *
+                    </label>
+                    <input type="text" formControlName="tripNumber" placeholder="Es: VGG-2024-001"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent font-mono"
+                        [ngClass]="{'border-red-500': form.get('tripNumber')?.invalid && form.get('tripNumber')?.touched}">
+                    @if (form.get('tripNumber')?.invalid && form.get('tripNumber')?.touched) {
+                    <p class="text-red-500 text-sm mt-1">Numero viaggio obbligatorio</p>
+                    }
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Stato
+                    </label>
+                    <select formControlName="status"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                        @for (status of statusOptions; track status.value) {
+                        <option [value]="status.value">{{ status.label }}</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Price -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Prezzo (EUR) *
+                    </label>
+                    <input type="number" formControlName="price" placeholder="Es: 1500" min="0" step="0.01"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+
+                <!-- Client -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Cliente
+                    </label>
+                    <select formControlName="clientId"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                        <option value="">Seleziona cliente</option>
+                        @for (client of clientsService.clients(); track client.id) {
+                        <option [value]="client.id">{{ client.companyName }}</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Vehicle -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Veicolo
+                    </label>
+                    <select formControlName="vehicleId"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                        <option value="">Seleziona veicolo</option>
+                        @for (vehicle of vehiclesService.vehicles(); track vehicle.id) {
+                        <option [value]="vehicle.id">{{ vehicle.plate }} - {{ vehicle.brand }} {{ vehicle.model }}</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Driver -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Autista
+                    </label>
+                    <select formControlName="driverId"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                        <option value="">Seleziona autista</option>
+                        @for (driver of driversService.drivers(); track driver.id) {
+                        <option [value]="driver.id">{{ driver.firstName }} {{ driver.lastName }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Origin -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="material-icons-outlined text-green-600">trip_origin</span>
+                <h2 class="text-lg font-semibold text-gray-800">Partenza</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Origin Company Name -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Ragione Sociale
+                    </label>
+                    <input type="text" formControlName="originCompanyName" placeholder="Es: Magazzino Nord S.r.l."
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+
+                <!-- Origin Address -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Indirizzo *
+                    </label>
+                    <input type="text" formControlName="originAddress" placeholder="Es: Via Roma, 123"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('originAddress')?.invalid && form.get('originAddress')?.touched}">
+                </div>
+
+                <!-- Origin City -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Citta *
+                    </label>
+                    <input type="text" formControlName="originCity" placeholder="Es: Milano"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('originCity')?.invalid && form.get('originCity')?.touched}">
+                </div>
+
+                <!-- Origin Province -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Provincia *
+                    </label>
+                    <input type="text" formControlName="originProvince" placeholder="Es: MI" maxlength="2"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent uppercase"
+                        [ngClass]="{'border-red-500': form.get('originProvince')?.invalid && form.get('originProvince')?.touched}">
+                </div>
+
+                <!-- Origin Postal Code -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        CAP *
+                    </label>
+                    <input type="text" formControlName="originPostalCode" placeholder="Es: 20100" maxlength="5"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('originPostalCode')?.invalid && form.get('originPostalCode')?.touched}">
+                </div>
+
+                <!-- Origin Country -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Paese *
+                    </label>
+                    <input type="text" formControlName="originCountry"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+            </div>
+        </div>
+
+        <!-- Destination -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="material-icons-outlined text-red-600">location_on</span>
+                <h2 class="text-lg font-semibold text-gray-800">Arrivo</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Destination Company Name -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Ragione Sociale
+                    </label>
+                    <input type="text" formControlName="destinationCompanyName" placeholder="Es: Deposito Sud S.p.A."
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+
+                <!-- Destination Address -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Indirizzo *
+                    </label>
+                    <input type="text" formControlName="destinationAddress" placeholder="Es: Via Napoli, 456"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('destinationAddress')?.invalid && form.get('destinationAddress')?.touched}">
+                </div>
+
+                <!-- Destination City -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Citta *
+                    </label>
+                    <input type="text" formControlName="destinationCity" placeholder="Es: Roma"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('destinationCity')?.invalid && form.get('destinationCity')?.touched}">
+                </div>
+
+                <!-- Destination Province -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Provincia *
+                    </label>
+                    <input type="text" formControlName="destinationProvince" placeholder="Es: RM" maxlength="2"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent uppercase"
+                        [ngClass]="{'border-red-500': form.get('destinationProvince')?.invalid && form.get('destinationProvince')?.touched}">
+                </div>
+
+                <!-- Destination Postal Code -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        CAP *
+                    </label>
+                    <input type="text" formControlName="destinationPostalCode" placeholder="Es: 00100" maxlength="5"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('destinationPostalCode')?.invalid && form.get('destinationPostalCode')?.touched}">
+                </div>
+
+                <!-- Destination Country -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Paese *
+                    </label>
+                    <input type="text" formControlName="destinationCountry"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+            </div>
+        </div>
+
+        <!-- Cargo -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="material-icons-outlined text-gray-600">inventory_2</span>
+                <h2 class="text-lg font-semibold text-gray-800">Merce</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Cargo Description -->
+                <div class="md:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Descrizione *
+                    </label>
+                    <input type="text" formControlName="cargoDescription" placeholder="Es: Materiale edile"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('cargoDescription')?.invalid && form.get('cargoDescription')?.touched}">
+                </div>
+
+                <!-- Cargo Weight -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Peso (kg) *
+                    </label>
+                    <input type="number" formControlName="cargoWeight" placeholder="Es: 5000" min="0"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+
+                <!-- Cargo Volume -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Volume (m3)
+                    </label>
+                    <input type="number" formControlName="cargoVolume" placeholder="Es: 25" min="0" step="0.01"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+
+                <!-- Cargo Packages -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Colli
+                    </label>
+                    <input type="number" formControlName="cargoPackages" placeholder="Es: 10" min="0"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+
+                <!-- Cargo Temperature -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Temperatura (C)
+                    </label>
+                    <input type="number" formControlName="cargoTemperature" placeholder="Es: -18"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+
+                <!-- Cargo ADR -->
+                <div class="md:col-span-2 flex items-center">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" formControlName="cargoIsADR" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2
+                            peer-focus:ring-accent/50 rounded-full peer
+                            peer-checked:after:translate-x-full peer-checked:after:border-white
+                            after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                            after:bg-white after:border-gray-300 after:border after:rounded-full
+                            after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                        <span class="ml-3 text-sm font-medium text-gray-700">
+                            Merce ADR (merci pericolose)
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="material-icons-outlined text-gray-600">schedule</span>
+                <h2 class="text-lg font-semibold text-gray-800">Programmazione</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Planned Departure -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Partenza Prevista *
+                    </label>
+                    <input type="datetime-local" formControlName="plannedDeparture"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('plannedDeparture')?.invalid && form.get('plannedDeparture')?.touched}">
+                </div>
+
+                <!-- Planned Arrival -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Arrivo Previsto *
+                    </label>
+                    <input type="datetime-local" formControlName="plannedArrival"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('plannedArrival')?.invalid && form.get('plannedArrival')?.touched}">
+                </div>
+
+                <!-- Km Planned -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Km Previsti *
+                    </label>
+                    <input type="number" formControlName="kmPlanned" placeholder="Es: 580" min="0"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Note</h2>
+            <textarea formControlName="notes" rows="4" placeholder="Note aggiuntive sul viaggio..."
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent
+                   resize-none"></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-end gap-4">
+            <a routerLink="/trips"
+                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg
+                   hover:bg-gray-50 font-medium transition-all">
+                Annulla
+            </a>
+            <button type="submit" [disabled]="form.invalid || saving()"
+                class="px-6 py-2 bg-accent hover:bg-accent-dark text-white rounded-lg
+                   font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                   flex items-center gap-2">
+                @if (saving()) {
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                }
+                {{ isEditMode ? 'Salva Modifiche' : 'Crea Viaggio' }}
+            </button>
+        </div>
+    </form>
+</div>

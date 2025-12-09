@@ -1,0 +1,261 @@
+<div class="space-y-6">
+    <!-- Back Button & Actions -->
+    <div class="flex items-center justify-between">
+        <a routerLink="/trips" class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
+            <span class="material-icons-outlined">arrow_back</span>
+            Torna alla lista
+        </a>
+
+        @if (tripsService.selectedTrip(); as trip) {
+        <div class="flex items-center gap-2">
+            <a [routerLink]="['edit']" class="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dark
+                     text-white rounded-lg font-medium transition-all">
+                <span class="material-icons-outlined text-xl">edit</span>
+                Modifica
+            </a>
+        </div>
+        }
+    </div>
+
+    <!-- Loading -->
+    @if (tripsService.loading()) {
+    <div class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+    </div>
+    }
+
+    <!-- Trip Detail -->
+    @if (tripsService.selectedTrip(); as trip) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Info -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Header Card -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-start gap-4">
+                    <div class="w-16 h-16 bg-accent/10 rounded-xl flex items-center justify-center">
+                        <span class="material-icons-outlined text-accent text-3xl">route</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <h1 class="text-2xl font-bold text-gray-800">
+                                Viaggio {{ trip.tripNumber }}
+                            </h1>
+                            <app-status-badge [status]="trip.status" [labels]="statusLabels" />
+                        </div>
+                        <p class="text-gray-500">
+                            {{ trip.origin.city }} → {{ trip.destination.city }}
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-bold text-accent">{{ trip.price | currency:'EUR':'symbol':'1.0-0':'it-IT' }}</p>
+                        <p class="text-sm text-gray-500">{{ trip.kmPlanned | number:'1.0-0':'it-IT' }} km</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned Resources -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Risorse Assegnate</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Client -->
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="material-icons-outlined text-gray-500">business</span>
+                            <span class="text-sm text-gray-500">Cliente</span>
+                        </div>
+                        @if (client(); as c) {
+                        <p class="font-medium text-gray-800">{{ c.companyName }}</p>
+                        } @else {
+                        <p class="text-gray-400 italic">Non assegnato</p>
+                        }
+                    </div>
+                    <!-- Vehicle -->
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="material-icons-outlined text-gray-500">local_shipping</span>
+                            <span class="text-sm text-gray-500">Veicolo</span>
+                        </div>
+                        @if (vehicle(); as v) {
+                        <p class="font-medium text-gray-800">{{ v.plate }}</p>
+                        <p class="text-sm text-gray-500">{{ v.brand }} {{ v.model }}</p>
+                        } @else {
+                        <p class="text-gray-400 italic">Non assegnato</p>
+                        }
+                    </div>
+                    <!-- Driver -->
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="material-icons-outlined text-gray-500">person</span>
+                            <span class="text-sm text-gray-500">Autista</span>
+                        </div>
+                        @if (driver(); as d) {
+                        <p class="font-medium text-gray-800">{{ d.firstName }} {{ d.lastName }}</p>
+                        <p class="text-sm text-gray-500">{{ d.phone }}</p>
+                        } @else {
+                        <p class="text-gray-400 italic">Non assegnato</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Route Info -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Tratta</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Origin -->
+                    <div class="p-4 bg-green-50 rounded-lg border border-green-100">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="material-icons-outlined text-green-600">trip_origin</span>
+                            <span class="font-medium text-green-800">Partenza</span>
+                        </div>
+                        @if (trip.origin.companyName) {
+                        <p class="font-semibold text-gray-800 mb-1">{{ trip.origin.companyName }}</p>
+                        }
+                        <p class="text-gray-800">{{ trip.origin.address }}</p>
+                        <p class="text-gray-600">{{ trip.origin.postalCode }} {{ trip.origin.city }} ({{ trip.origin.province }})</p>
+                        <p class="text-gray-500">{{ trip.origin.country }}</p>
+                    </div>
+                    <!-- Destination -->
+                    <div class="p-4 bg-red-50 rounded-lg border border-red-100">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="material-icons-outlined text-red-600">location_on</span>
+                            <span class="font-medium text-red-800">Arrivo</span>
+                        </div>
+                        @if (trip.destination.companyName) {
+                        <p class="font-semibold text-gray-800 mb-1">{{ trip.destination.companyName }}</p>
+                        }
+                        <p class="text-gray-800">{{ trip.destination.address }}</p>
+                        <p class="text-gray-600">{{ trip.destination.postalCode }} {{ trip.destination.city }} ({{ trip.destination.province }})</p>
+                        <p class="text-gray-500">{{ trip.destination.country }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cargo Info -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Merce</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="col-span-2">
+                        <p class="text-sm text-gray-500 mb-1">Descrizione</p>
+                        <p class="font-medium text-gray-800">{{ trip.cargo.description }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Peso</p>
+                        <p class="font-medium text-gray-800">{{ trip.cargo.weight | number:'1.0-0':'it-IT' }} kg</p>
+                    </div>
+                    @if (trip.cargo.volume) {
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Volume</p>
+                        <p class="font-medium text-gray-800">{{ trip.cargo.volume | number:'1.2-2':'it-IT' }} m³</p>
+                    </div>
+                    }
+                    @if (trip.cargo.packages) {
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Colli</p>
+                        <p class="font-medium text-gray-800">{{ trip.cargo.packages }}</p>
+                    </div>
+                    }
+                    @if (trip.cargo.temperature) {
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Temperatura</p>
+                        <p class="font-medium text-gray-800">{{ trip.cargo.temperature }}°C</p>
+                    </div>
+                    }
+                </div>
+                @if (trip.cargo.isADR) {
+                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+                    <span class="material-icons-outlined text-red-600">warning</span>
+                    <span class="text-red-700 font-medium">Merce ADR - Trasporto merci pericolose</span>
+                </div>
+                }
+            </div>
+
+            <!-- Notes -->
+            @if (trip.notes) {
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Note</h2>
+                <p class="text-gray-600 whitespace-pre-line">{{ trip.notes }}</p>
+            </div>
+            }
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Schedule Card -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Programmazione</h2>
+                <div class="space-y-4">
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-500 mb-1">Partenza Prevista</p>
+                        <p class="font-medium text-gray-800">{{ trip.plannedDeparture | date:'dd/MM/yyyy HH:mm' }}</p>
+                        @if (trip.actualDeparture) {
+                        <p class="text-sm text-green-600 mt-1">
+                            Effettiva: {{ trip.actualDeparture | date:'dd/MM/yyyy HH:mm' }}
+                        </p>
+                        }
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-500 mb-1">Arrivo Previsto</p>
+                        <p class="font-medium text-gray-800">{{ trip.plannedArrival | date:'dd/MM/yyyy HH:mm' }}</p>
+                        @if (trip.actualArrival) {
+                        <p class="text-sm text-green-600 mt-1">
+                            Effettivo: {{ trip.actualArrival | date:'dd/MM/yyyy HH:mm' }}
+                        </p>
+                        }
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-500 mb-1">Chilometri</p>
+                        <p class="font-medium text-gray-800">{{ trip.kmPlanned | number:'1.0-0':'it-IT' }} km previsti</p>
+                        @if (trip.kmActual) {
+                        <p class="text-sm text-gray-600 mt-1">
+                            {{ trip.kmActual | number:'1.0-0':'it-IT' }} km effettivi
+                        </p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Azioni Rapide</h2>
+                <div class="space-y-2">
+                    @if (trip.status === 'planned') {
+                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                               hover:bg-gray-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">play_arrow</span>
+                        Avvia Viaggio
+                    </button>
+                    }
+                    @if (trip.status === 'in_progress') {
+                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                               hover:bg-gray-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">check_circle</span>
+                        Completa Viaggio
+                    </button>
+                    }
+                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                               hover:bg-gray-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">receipt_long</span>
+                        Genera Fattura
+                    </button>
+                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                               hover:bg-gray-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">print</span>
+                        Stampa DDT
+                    </button>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <p class="text-xs text-gray-500">
+                    Creato il {{ trip.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                </p>
+                <p class="text-xs text-gray-500">
+                    Ultimo aggiornamento {{ trip.updatedAt | date:'dd/MM/yyyy HH:mm' }}
+                </p>
+            </div>
+        </div>
+    </div>
+    }
+</div>

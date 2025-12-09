@@ -202,6 +202,7 @@
       "driverId": "d1",
       "clientId": "c1",
       "origin": {
+        "companyName": "TechCorp SRL",
         "address": "Via dell'Industria 45",
         "city": "Milano",
         "province": "MI",
@@ -211,6 +212,7 @@
         "lng": 9.19
       },
       "destination": {
+        "companyName": "Deposito Roma Est",
         "address": "Via Tiburtina 500",
         "city": "Roma",
         "province": "RM",
@@ -243,6 +245,7 @@
       "driverId": "d2",
       "clientId": "c2",
       "origin": {
+        "companyName": "LogiTrans SRL",
         "address": "Via Roma 123",
         "city": "Torino",
         "province": "TO",
@@ -252,6 +255,7 @@
         "lng": 7.6869
       },
       "destination": {
+        "companyName": "Centro Distribuzione Sud",
         "address": "Via Toledo 100",
         "city": "Napoli",
         "province": "NA",
@@ -282,6 +286,7 @@
       "driverId": "d3",
       "clientId": "c3",
       "origin": {
+        "companyName": "FastDelivery SpA",
         "address": "Viale Europa 78",
         "city": "Bologna",
         "province": "BO",
@@ -291,6 +296,7 @@
         "lng": 11.3426
       },
       "destination": {
+        "companyName": "Supermercati Puglia",
         "address": "Via Sparano 100",
         "city": "Bari",
         "province": "BA",

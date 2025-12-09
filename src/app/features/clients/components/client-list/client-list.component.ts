@@ -19,7 +19,7 @@ import { Client } from '../../../../models';
 export class ClientListComponent implements OnInit {
   clientsService = inject(ClientsService);
 
-  searchQuery = '';
+  searchQuery = signal('');
   statusFilter = signal<boolean | null>(null);
   clientToDelete = signal<Client | null>(null);
 
@@ -33,7 +33,7 @@ export class ClientListComponent implements OnInit {
     }
 
     // Filter by search query
-    const query = this.searchQuery.toLowerCase().trim();
+    const query = this.searchQuery().toLowerCase().trim();
     if (query) {
       clients = clients.filter(c =>
         c.companyName.toLowerCase().includes(query) ||
@@ -48,6 +48,11 @@ export class ClientListComponent implements OnInit {
 
   ngOnInit(): void {
     this.clientsService.loadClients();
+  }
+
+  onSearchChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.searchQuery.set(input.value);
   }
 
   confirmDelete(client: Client): void {
