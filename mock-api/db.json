@@ -6,7 +6,7 @@
       "brand": "Iveco",
       "model": "Stralis",
       "year": 2021,
-      "status": "inactive",
+      "status": "available",
       "currentDriverId": "d1",
       "lastPosition": {
         "lat": 43.7696,
@@ -17,7 +17,7 @@
       "insuranceExpiry": "2025-06-15",
       "revisionExpiry": "2025-03-20",
       "createdAt": "2021-03-15T00:00:00Z",
-      "updatedAt": "2025-12-05T12:15:23.474Z",
+      "updatedAt": "2025-12-06T16:42:15.214Z",
       "notes": ""
     },
     {
@@ -101,7 +101,9 @@
       "assignedVehicleId": "v1",
       "hireDate": "2018-03-15",
       "createdAt": "2018-03-15T00:00:00Z",
-      "updatedAt": "2024-11-24T08:00:00Z"
+      "updatedAt": "2025-12-06T16:41:31.084Z",
+      "adrExpiry": "",
+      "notes": ""
     },
     {
       "id": "d2",

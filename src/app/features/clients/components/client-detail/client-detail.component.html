@@ -1,0 +1,209 @@
+<div class="space-y-6">
+    <!-- Back Button & Actions -->
+    <div class="flex items-center justify-between">
+        <a routerLink="/clients" class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
+            <span class="material-icons-outlined">arrow_back</span>
+            Torna alla lista
+        </a>
+
+        @if (clientsService.selectedClient(); as client) {
+        <div class="flex items-center gap-2">
+            <a [routerLink]="['edit']" class="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dark
+                     text-white rounded-lg font-medium transition-all">
+                <span class="material-icons-outlined text-xl">edit</span>
+                Modifica
+            </a>
+        </div>
+        }
+    </div>
+
+    <!-- Loading -->
+    @if (clientsService.loading()) {
+    <div class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+    </div>
+    }
+
+    <!-- Client Detail -->
+    @if (clientsService.selectedClient(); as client) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Info -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Header Card -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-start gap-4">
+                    <div class="w-16 h-16 bg-accent/10 rounded-xl flex items-center justify-center">
+                        <span class="material-icons-outlined text-accent text-3xl">business</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <h1 class="text-2xl font-bold text-gray-800">
+                                {{ client.companyName }}
+                            </h1>
+                            @if (client.isActive) {
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Attivo
+                            </span>
+                            } @else {
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                Inattivo
+                            </span>
+                            }
+                        </div>
+                        <p class="text-gray-500">
+                            P.IVA: <span class="font-mono font-medium">{{ client.vatNumber }}</span>
+                            @if (client.fiscalCode) {
+                            • C.F.: <span class="font-mono font-medium">{{ client.fiscalCode }}</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Info -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Indirizzo</h2>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="col-span-2">
+                        <p class="text-sm text-gray-500 mb-1">Via/Piazza</p>
+                        <p class="font-medium text-gray-800">{{ client.address }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Città</p>
+                        <p class="font-medium text-gray-800">{{ client.city }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Provincia</p>
+                        <p class="font-medium text-gray-800">{{ client.province }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">CAP</p>
+                        <p class="font-medium text-gray-800">{{ client.postalCode }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Paese</p>
+                        <p class="font-medium text-gray-800">{{ client.country }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Info -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Dati Fatturazione</h2>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Partita IVA</p>
+                        <p class="font-mono font-medium text-gray-800">{{ client.vatNumber }}</p>
+                    </div>
+                    @if (client.fiscalCode) {
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Codice Fiscale</p>
+                        <p class="font-mono font-medium text-gray-800">{{ client.fiscalCode }}</p>
+                    </div>
+                    }
+                    @if (client.sdiCode) {
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Codice SDI</p>
+                        <p class="font-mono font-medium text-gray-800">{{ client.sdiCode }}</p>
+                    </div>
+                    }
+                    @if (client.pec) {
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">PEC</p>
+                        <p class="font-medium text-gray-800">{{ client.pec }}</p>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Notes -->
+            @if (client.notes) {
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Note</h2>
+                <p class="text-gray-600 whitespace-pre-line">{{ client.notes }}</p>
+            </div>
+            }
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Contact Card -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Contatti</h2>
+                <div class="space-y-4">
+                    @if (client.contactPerson) {
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span class="material-icons-outlined text-gray-500">person</span>
+                        <div>
+                            <p class="text-sm text-gray-500">Referente</p>
+                            <p class="font-medium text-gray-800">{{ client.contactPerson }}</p>
+                        </div>
+                    </div>
+                    }
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span class="material-icons-outlined text-gray-500">phone</span>
+                        <div>
+                            <p class="text-sm text-gray-500">Telefono</p>
+                            <a href="tel:{{ client.phone }}" class="font-medium text-gray-800 hover:text-accent">
+                                {{ client.phone }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span class="material-icons-outlined text-gray-500">email</span>
+                        <div>
+                            <p class="text-sm text-gray-500">Email</p>
+                            <a href="mailto:{{ client.email }}" class="font-medium text-gray-800 hover:text-accent">
+                                {{ client.email }}
+                            </a>
+                        </div>
+                    </div>
+                    @if (client.pec) {
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span class="material-icons-outlined text-gray-500">mark_email_read</span>
+                        <div>
+                            <p class="text-sm text-gray-500">PEC</p>
+                            <a href="mailto:{{ client.pec }}" class="font-medium text-gray-800 hover:text-accent">
+                                {{ client.pec }}
+                            </a>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Azioni Rapide</h2>
+                <div class="space-y-2">
+                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                               hover:bg-gray-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">receipt_long</span>
+                        Visualizza Fatture
+                    </button>
+                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                               hover:bg-gray-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">route</span>
+                        Visualizza Viaggi
+                    </button>
+                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                               hover:bg-gray-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">add_circle</span>
+                        Nuovo Viaggio
+                    </button>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <p class="text-xs text-gray-500">
+                    Creato il {{ client.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                </p>
+                <p class="text-xs text-gray-500">
+                    Ultimo aggiornamento {{ client.updatedAt | date:'dd/MM/yyyy HH:mm' }}
+                </p>
+            </div>
+        </div>
+    </div>
+    }
+</div>

@@ -1,0 +1,217 @@
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Clienti</h1>
+            <p class="text-gray-500 mt-1">
+                {{ clientsService.clientCount() }} clienti totali
+            </p>
+        </div>
+        <a routerLink="new" class="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dark
+                 text-white rounded-lg font-medium transition-all">
+            <span class="material-icons-outlined">add</span>
+            Nuovo Cliente
+        </a>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div class="flex flex-col md:flex-row gap-4">
+            <!-- Search -->
+            <div class="relative flex-1">
+                <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    search
+                </span>
+                <input type="text" placeholder="Cerca per ragione sociale, P.IVA, città, email..." [(ngModel)]="searchQuery" class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg
+                     focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+            </div>
+
+            <!-- Status Filter -->
+            <div class="flex gap-2 flex-wrap">
+                <button (click)="statusFilter.set(null)" class="px-4 py-2 rounded-lg font-medium text-sm transition-all"
+                    [ngClass]="statusFilter() === null
+                ? 'bg-accent text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    Tutti
+                </button>
+                <button (click)="statusFilter.set(true)" class="px-4 py-2 rounded-lg font-medium text-sm transition-all"
+                    [ngClass]="statusFilter() === true
+                ? 'bg-accent text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    Attivi
+                </button>
+                <button (click)="statusFilter.set(false)" class="px-4 py-2 rounded-lg font-medium text-sm transition-all"
+                    [ngClass]="statusFilter() === false
+                ? 'bg-accent text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    Inattivi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-green-600">check_circle</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-800">{{ clientsService.activeCount() }}</p>
+                    <p class="text-xs text-gray-500">Attivi</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-gray-600">block</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-800">{{ clientsService.inactiveCount() }}</p>
+                    <p class="text-xs text-gray-500">Inattivi</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (clientsService.loading()) {
+    <div class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+    </div>
+    }
+
+    <!-- Error State -->
+    @if (clientsService.error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+        <span class="material-icons-outlined text-red-500">error</span>
+        <p class="text-red-700">{{ clientsService.error() }}</p>
+        <button (click)="clientsService.loadClients()" class="ml-auto text-red-600 hover:text-red-800 font-medium">
+            Riprova
+        </button>
+    </div>
+    }
+
+    <!-- Clients Table -->
+    @if (!clientsService.loading() && !clientsService.error()) {
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Ragione Sociale
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            P.IVA
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Città
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Contatti
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Stato
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Azioni
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @for (client of filteredClients(); track client.id) {
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+                                    <span class="material-icons-outlined text-accent">business</span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-800">{{ client.companyName }}</p>
+                                    @if (client.contactPerson) {
+                                    <p class="text-sm text-gray-500">{{ client.contactPerson }}</p>
+                                    }
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="font-mono text-gray-800">{{ client.vatNumber }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div>
+                                <p class="text-gray-800">{{ client.city }}</p>
+                                <p class="text-sm text-gray-500">{{ client.province }}</p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="space-y-1">
+                                <p class="text-sm text-gray-600">{{ client.email }}</p>
+                                <p class="text-sm text-gray-500">{{ client.phone }}</p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            @if (client.isActive) {
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Attivo
+                            </span>
+                            } @else {
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                Inattivo
+                            </span>
+                            }
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-end gap-2">
+                                <a [routerLink]="[client.id]"
+                                    class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
+                                    title="Dettagli">
+                                    <span class="material-icons-outlined text-xl">visibility</span>
+                                </a>
+                                <a [routerLink]="[client.id, 'edit']"
+                                    class="p-2 text-gray-400 hover:text-accent hover:bg-accent/10 rounded-lg transition-all"
+                                    title="Modifica">
+                                    <span class="material-icons-outlined text-xl">edit</span>
+                                </a>
+                                <button (click)="confirmDelete(client)"
+                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                    title="Elimina">
+                                    <span class="material-icons-outlined text-xl">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center">
+                                <span class="material-icons-outlined text-5xl text-gray-300 mb-3">
+                                    business
+                                </span>
+                                <p class="text-gray-500 font-medium">Nessun cliente trovato</p>
+                                <p class="text-gray-400 text-sm mt-1">
+                                    @if (searchQuery || statusFilter() !== null) {
+                                    Prova a modificare i filtri di ricerca
+                                    } @else {
+                                    Aggiungi il tuo primo cliente
+                                    }
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+</div>
+
+<!-- Confirm Delete Dialog -->
+@if (clientToDelete()) {
+<app-confirm-dialog title="Elimina Cliente"
+    [message]="'Sei sicuro di voler eliminare il cliente ' + clientToDelete()!.companyName + '?'" confirmText="Elimina"
+    confirmColor="red" (confirm)="deleteClient()" (cancel)="clientToDelete.set(null)" />
+}

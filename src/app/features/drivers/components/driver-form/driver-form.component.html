@@ -1,0 +1,285 @@
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <a routerLink="/drivers"
+                class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors mb-2">
+                <span class="material-icons-outlined">arrow_back</span>
+                Torna alla lista
+            </a>
+            <h1 class="text-2xl font-bold text-gray-800">
+                {{ pageTitle() }}
+            </h1>
+            <!-- Preview nome completo -->
+            <p class="text-gray-500 mt-1">{{ fullName() }}</p>
+        </div>
+
+        <!-- Badge errori (visibile solo se touched e ci sono errori) -->
+        @if (touched() && errorCount() > 0) {
+        <div class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg">
+            <span class="material-icons-outlined text-sm">error</span>
+            <span class="text-sm font-medium">{{ errorCount() }} {{ errorCount() === 1 ? 'errore' : 'errori' }}</span>
+        </div>
+        }
+    </div>
+
+    <!-- Loading State -->
+    @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+    </div>
+    } @else {
+    <!--
+    SIGNAL FORMS:
+    Invece di [formGroup] e formControlName, usiamo [ngModel] con i signal.
+    [ngModel]="signal()" legge il valore
+    (ngModelChange)="signal.set($event)" scrive il nuovo valore
+  -->
+    <form (ngSubmit)="onSubmit()" class="space-y-6">
+
+        <!-- Dati Anagrafici -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="material-icons-outlined text-accent">person</span>
+                Dati Anagrafici
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nome -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Nome *
+                    </label>
+                    <input type="text" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" name="firstName"
+                        placeholder="Mario" class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [class.border-red-500]="showError(firstNameError())">
+                    @if (showError(firstNameError())) {
+                    <p class="text-red-500 text-sm mt-1">{{ firstNameError() }}</p>
+                    }
+                </div>
+
+                <!-- Cognome -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Cognome *
+                    </label>
+                    <input type="text" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" name="lastName"
+                        placeholder="Rossi" class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [class.border-red-500]="showError(lastNameError())">
+                    @if (showError(lastNameError())) {
+                    <p class="text-red-500 text-sm mt-1">{{ lastNameError() }}</p>
+                    }
+                </div>
+
+                <!-- Codice Fiscale -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Codice Fiscale *
+                    </label>
+                    <input type="text" [ngModel]="fiscalCode()" (ngModelChange)="fiscalCode.set($event)"
+                        name="fiscalCode" placeholder="RSSMRA80A01H501A" maxlength="16" class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent uppercase"
+                        [class.border-red-500]="showError(fiscalCodeError())">
+                    @if (showError(fiscalCodeError())) {
+                    <p class="text-red-500 text-sm mt-1">{{ fiscalCodeError() }}</p>
+                    }
+                </div>
+
+                <!-- Telefono -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Telefono *
+                    </label>
+                    <input type="tel" [ngModel]="phone()" (ngModelChange)="phone.set($event)" name="phone"
+                        placeholder="+39 333 1234567" class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [class.border-red-500]="showError(phoneError())">
+                    @if (showError(phoneError())) {
+                    <p class="text-red-500 text-sm mt-1">{{ phoneError() }}</p>
+                    }
+                </div>
+
+                <!-- Email -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Email
+                        <span class="text-gray-400 font-normal">(opzionale)</span>
+                    </label>
+                    <input type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email"
+                        placeholder="mario.rossi@email.com" class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [class.border-red-500]="showError(emailError())">
+                    @if (showError(emailError())) {
+                    <p class="text-red-500 text-sm mt-1">{{ emailError() }}</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Patente e Certificazioni -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="material-icons-outlined text-accent">badge</span>
+                Patente e Certificazioni
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Numero Patente -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Numero Patente *
+                    </label>
+                    <input type="text" [ngModel]="licenseNumber()" (ngModelChange)="licenseNumber.set($event)"
+                        name="licenseNumber" placeholder="AB1234567" class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent uppercase"
+                        [class.border-red-500]="showError(licenseNumberError())">
+                    @if (showError(licenseNumberError())) {
+                    <p class="text-red-500 text-sm mt-1">{{ licenseNumberError() }}</p>
+                    }
+                </div>
+
+                <!-- Scadenza Patente -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Scadenza Patente *
+                    </label>
+                    <input type="date" [ngModel]="licenseExpiry()" (ngModelChange)="licenseExpiry.set($event)"
+                        name="licenseExpiry" class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [class.border-red-500]="showError(licenseExpiryError())">
+                    @if (showError(licenseExpiryError())) {
+                    <p class="text-red-500 text-sm mt-1">{{ licenseExpiryError() }}</p>
+                    }
+                </div>
+
+                <!-- Scadenza CQC -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Scadenza CQC *
+                        <span class="text-gray-400 font-normal text-xs">(Carta Qualificazione Conducente)</span>
+                    </label>
+                    <input type="date" [ngModel]="cqcExpiry()" (ngModelChange)="cqcExpiry.set($event)" name="cqcExpiry"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [class.border-red-500]="showError(cqcExpiryError())">
+                    @if (showError(cqcExpiryError())) {
+                    <p class="text-red-500 text-sm mt-1">{{ cqcExpiryError() }}</p>
+                    }
+                </div>
+
+                <!-- Scadenza ADR -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Scadenza ADR
+                        <span class="text-gray-400 font-normal text-xs">(merci pericolose, opzionale)</span>
+                    </label>
+                    <input type="date" [ngModel]="adrExpiry()" (ngModelChange)="adrExpiry.set($event)" name="adrExpiry"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+            </div>
+        </div>
+
+        <!-- Stato e Assegnazione -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="material-icons-outlined text-accent">work</span>
+                Stato e Assegnazione
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Stato -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Stato
+                    </label>
+                    <select [ngModel]="status()" (ngModelChange)="status.set($event)" name="status" class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                        @for (option of statusOptions; track option.value) {
+                        <option [value]="option.value">{{ option.label }}</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Data Assunzione -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Data Assunzione *
+                    </label>
+                    <input type="date" [ngModel]="hireDate()" (ngModelChange)="hireDate.set($event)" name="hireDate"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [class.border-red-500]="showError(hireDateError())">
+                    @if (showError(hireDateError())) {
+                    <p class="text-red-500 text-sm mt-1">{{ hireDateError() }}</p>
+                    }
+                </div>
+
+                <!-- Veicolo Assegnato -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Veicolo Assegnato
+                        <span class="text-gray-400 font-normal">(opzionale)</span>
+                    </label>
+                    <select [ngModel]="assignedVehicleId()" (ngModelChange)="assignedVehicleId.set($event)"
+                        name="assignedVehicleId" class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                        <option value="">Nessun veicolo assegnato</option>
+                        @for (vehicle of availableVehicles(); track vehicle.id) {
+                        <option [value]="vehicle.id">
+                            {{ vehicle.plate }} - {{ vehicle.brand }} {{ vehicle.model }}
+                        </option>
+                        }
+                    </select>
+                    @if (availableVehicles().length === 0) {
+                    <p class="text-gray-500 text-sm mt-1">Nessun veicolo disponibile</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Note -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="material-icons-outlined text-accent">notes</span>
+                Note
+            </h2>
+            <textarea [ngModel]="notes()" (ngModelChange)="notes.set($event)" name="notes" rows="4"
+                placeholder="Note aggiuntive sull'autista..." class="w-full px-4 py-2 border border-gray-200 rounded-lg
+               focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent resize-none"></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between">
+            <!-- Info validazione -->
+            <div class="text-sm text-gray-500">
+                @if (!touched()) {
+                <span>* Campi obbligatori</span>
+                } @else if (isFormValid()) {
+                <span class="text-green-600 flex items-center gap-1">
+                    <span class="material-icons-outlined text-sm">check_circle</span>
+                    Form valido
+                </span>
+                }
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a routerLink="/drivers" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg
+               hover:bg-gray-50 font-medium transition-all">
+                    Annulla
+                </a>
+                <button type="submit" [disabled]="saving()" class="px-6 py-2 bg-accent hover:bg-accent-dark text-white rounded-lg
+               font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
+               flex items-center gap-2">
+                    @if (saving()) {
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    }
+                    {{ submitButtonText() }}
+                </button>
+            </div>
+        </div>
+    </form>
+    }
+</div>

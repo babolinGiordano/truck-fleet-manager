@@ -23,8 +23,8 @@ export const routes: Routes = [
       },
       {
         path: 'drivers',
-        loadComponent: () => import('./features/drivers/driver-list.component')
-          .then(m => m.DriverListComponent)
+        loadChildren: () => import('./features/drivers/drivers.routes')
+          .then(m => m.DRIVERS_ROUTES)
       },
       {
         path: 'trips',
@@ -33,8 +33,8 @@ export const routes: Routes = [
       },
       {
         path: 'clients',
-        loadComponent: () => import('./features/clients/client-list.component')
-          .then(m => m.ClientListComponent)
+        loadChildren: () => import('./features/clients/clients.routes')
+          .then(m => m.CLIENTS_ROUTES)
       },
       {
         path: 'invoices',

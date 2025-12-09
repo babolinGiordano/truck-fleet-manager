@@ -1,0 +1,157 @@
+<div class="space-y-6">
+    <!-- Back Button & Actions -->
+    <div class="flex items-center justify-between">
+        <a routerLink="/drivers" class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
+            <span class="material-icons-outlined">arrow_back</span>
+            Torna alla lista
+        </a>
+
+        @if (driversService.selectedDriver(); as driver) {
+        <div class="flex items-center gap-2">
+            <a [routerLink]="['edit']" class="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dark 
+                     text-white rounded-lg font-medium transition-all">
+                <span class="material-icons-outlined text-xl">edit</span>
+                Modifica
+            </a>
+        </div>
+        }
+    </div>
+
+    <!-- Loading -->
+    @if (driversService.loading()) {
+    <div class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+    </div>
+    }
+
+    <!-- Driver Detail -->
+    @if (driversService.selectedDriver(); as driver) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Info -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Header Card -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-start gap-4">
+                    <div class="w-16 h-16 bg-accent/10 rounded-xl flex items-center justify-center">
+                        <span class="material-icons-outlined text-accent text-3xl">person</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <h1 class="text-2xl font-bold text-gray-800">
+                                {{ driver.firstName }} {{ driver.lastName }}
+                            </h1>
+                            <app-status-badge [status]="driver.status" [labels]="statusLabels" />
+                        </div>
+                        <p class="text-gray-500">
+                            <span class="font-mono font-medium">{{ driver.fiscalCode }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Grid -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Informazioni</h2>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Nome</p>
+                        <p class="font-medium text-gray-800">{{ driver.firstName }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Cognome</p>
+                        <p class="font-medium text-gray-800">{{ driver.lastName }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Telefono</p>
+                        <p class="font-medium text-gray-800">{{ driver.phone }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Email</p>
+                        <p class="font-medium text-gray-800">{{ driver.email || '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Numero Patente</p>
+                        <p class="font-medium text-gray-800 font-mono">{{ driver.licenseNumber }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Data Assunzione</p>
+                        <p class="font-medium text-gray-800">{{ driver.hireDate | date:'dd/MM/yyyy' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            @if (driver.notes) {
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Note</h2>
+                <p class="text-gray-600">{{ driver.notes }}</p>
+            </div>
+            }
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Scadenze Card -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Scadenze</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <span class="material-icons-outlined text-gray-500">badge</span>
+                            <span class="text-gray-600">Patente</span>
+                        </div>
+                        <span class="font-medium"
+                            [ngClass]="isExpiringSoon(driver.licenseExpiry) ? 'text-red-600' : 'text-gray-800'">
+                            {{ driver.licenseExpiry | date:'dd/MM/yyyy' }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <span class="material-icons-outlined text-gray-500">verified</span>
+                            <span class="text-gray-600">CQC</span>
+                        </div>
+                        <span class="font-medium"
+                            [ngClass]="isExpiringSoon(driver.cqcExpiry) ? 'text-red-600' : 'text-gray-800'">
+                            {{ driver.cqcExpiry | date:'dd/MM/yyyy' }}
+                        </span>
+                    </div>
+                    @if (driver.adrExpiry) {
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <span class="material-icons-outlined text-gray-500">warning</span>
+                            <span class="text-gray-600">ADR</span>
+                        </div>
+                        <span class="font-medium"
+                            [ngClass]="isExpiringSoon(driver.adrExpiry) ? 'text-red-600' : 'text-gray-800'">
+                            {{ driver.adrExpiry | date:'dd/MM/yyyy' }}
+                        </span>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Azioni Rapide</h2>
+                <div class="space-y-2">
+                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                               hover:bg-gray-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">local_shipping</span>
+                        Assegna Veicolo
+                    </button>
+                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                               hover:bg-gray-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">route</span>
+                        Assegna a Viaggio
+                    </button>
+                    <button class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600
+                               hover:bg-gray-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">event_busy</span>
+                        Registra Assenza
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>

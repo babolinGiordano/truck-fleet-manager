@@ -1,0 +1,57 @@
+ <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <app-kpi-card
+        title="Viaggi oggi"
+        [value]="stats().tripsToday"
+        icon="route"
+        iconBgColor="bg-blue-100"
+        iconColor="text-blue-600"
+        [trend]="12"
+        trendDirection="up"
+      />
+      <app-kpi-card
+        title="Veicoli in transito"
+        [value]="stats().vehiclesInTransit"
+        icon="local_shipping"
+        iconBgColor="bg-green-100"
+        iconColor="text-green-600"
+        [isLive]="true"
+      />
+      <app-kpi-card
+        title="Km questo mese"
+        [value]="stats().kmThisMonth"
+        [formatNumber]="true"
+        icon="speed"
+        iconBgColor="bg-purple-100"
+        iconColor="text-purple-600"
+        [trend]="8"
+        trendDirection="up"
+      />
+      <app-kpi-card
+        title="Fatturato mese"
+        [value]="stats().revenueThisMonth"
+        [isCurrency]="true"
+        icon="payments"
+        iconBgColor="bg-orange-100"
+        iconColor="text-orange-600"
+        [trend]="15"
+        trendDirection="up"
+      />
+    </div>
+
+    <!-- Main Grid: Map + Alerts -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <!-- Map Preview (2 cols) -->
+      <div class="lg:col-span-2">
+        <app-map-preview [vehiclesInTransit]="stats().vehiclesInTransit" />
+      </div>
+      
+      <!-- Alerts Panel -->
+      <app-alerts-panel [alerts]="alerts()" />
+    </div>
+
+    <!-- Bottom Section: Recent Trips + Chart -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <app-recent-trips [trips]="recentTrips()" />
+      <app-trips-chart [data]="chartData()" />
+    </div>

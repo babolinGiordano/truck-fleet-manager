@@ -1,0 +1,232 @@
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Veicoli</h1>
+            <p class="text-gray-500 mt-1">
+                {{ vehiclesService.vehicleCount() }} veicoli totali
+            </p>
+        </div>
+        <a routerLink="new" class="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dark 
+                 text-white rounded-lg font-medium transition-all">
+            <span class="material-icons-outlined">add</span>
+            Nuovo Veicolo
+        </a>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div class="flex flex-col md:flex-row gap-4">
+            <!-- Search -->
+            <div class="relative flex-1">
+                <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    search
+                </span>
+                <input type="text" placeholder="Cerca per targa, marca, modello..." [(ngModel)]="searchQuery" class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg 
+                     focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+            </div>
+
+            <!-- Status Filter -->
+            <div class="flex gap-2 flex-wrap">
+                <button (click)="statusFilter.set(null)" class="px-4 py-2 rounded-lg font-medium text-sm transition-all"
+                    [ngClass]="statusFilter() === null 
+                ? 'bg-accent text-white' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    Tutti
+                </button>
+                @for (status of statusOptions; track status.value) {
+                <button (click)="statusFilter.set(status.value)"
+                    class="px-4 py-2 rounded-lg font-medium text-sm transition-all" [ngClass]="statusFilter() === status.value 
+                  ? 'bg-accent text-white' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    {{ status.label }}
+                </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-green-600">check_circle</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-800">{{ vehiclesService.availableCount() }}</p>
+                    <p class="text-xs text-gray-500">Disponibili</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-blue-600">local_shipping</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-800">{{ vehiclesService.inTransitCount() }}</p>
+                    <p class="text-xs text-gray-500">In Transito</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-amber-600">build</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-800">
+                        {{ vehiclesService.vehiclesByStatus().maintenance.length }}
+                    </p>
+                    <p class="text-xs text-gray-500">In Manutenzione</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-gray-600">block</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-800">
+                        {{ vehiclesService.vehiclesByStatus().inactive.length }}
+                    </p>
+                    <p class="text-xs text-gray-500">Inattivi</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (vehiclesService.loading()) {
+    <div class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+    </div>
+    }
+
+    <!-- Error State -->
+    @if (vehiclesService.error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+        <span class="material-icons-outlined text-red-500">error</span>
+        <p class="text-red-700">{{ vehiclesService.error() }}</p>
+        <button (click)="vehiclesService.loadVehicles()" class="ml-auto text-red-600 hover:text-red-800 font-medium">
+            Riprova
+        </button>
+    </div>
+    }
+
+    <!-- Vehicles Table -->
+    @if (!vehiclesService.loading() && !vehiclesService.error()) {
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Veicolo
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Targa
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Stato
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Km Totali
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Scadenze
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Azioni
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @for (vehicle of filteredVehicles(); track vehicle.id) {
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+                                    <span class="material-icons-outlined text-accent">local_shipping</span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-800">{{ vehicle.brand }} {{ vehicle.model }}</p>
+                                    <p class="text-sm text-gray-500">{{ vehicle.year }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="font-mono font-medium text-gray-800">{{ vehicle.plate }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <app-status-badge [status]="vehicle.status" [labels]="statusLabels" />
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">
+                            {{ vehicle.kmTotal | number:'1.0-0':'it-IT' }} km
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="space-y-1">
+                                <p class="text-xs"
+                                    [ngClass]="isExpiringSoon(vehicle.insuranceExpiry) ? 'text-red-600 font-medium' : 'text-gray-500'">
+                                    Assic: {{ vehicle.insuranceExpiry | date:'dd/MM/yyyy' }}
+                                </p>
+                                <p class="text-xs"
+                                    [ngClass]="isExpiringSoon(vehicle.revisionExpiry) ? 'text-red-600 font-medium' : 'text-gray-500'">
+                                    Rev: {{ vehicle.revisionExpiry | date:'dd/MM/yyyy' }}
+                                </p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-end gap-2">
+                                <a [routerLink]="[vehicle.id]"
+                                    class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
+                                    title="Dettagli">
+                                    <span class="material-icons-outlined text-xl">visibility</span>
+                                </a>
+                                <a [routerLink]="[vehicle.id, 'edit']"
+                                    class="p-2 text-gray-400 hover:text-accent hover:bg-accent/10 rounded-lg transition-all"
+                                    title="Modifica">
+                                    <span class="material-icons-outlined text-xl">edit</span>
+                                </a>
+                                <button (click)="confirmDelete(vehicle)"
+                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                    title="Elimina">
+                                    <span class="material-icons-outlined text-xl">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center">
+                                <span class="material-icons-outlined text-5xl text-gray-300 mb-3">
+                                    local_shipping
+                                </span>
+                                <p class="text-gray-500 font-medium">Nessun veicolo trovato</p>
+                                <p class="text-gray-400 text-sm mt-1">
+                                    @if (searchQuery || statusFilter()) {
+                                    Prova a modificare i filtri di ricerca
+                                    } @else {
+                                    Aggiungi il tuo primo veicolo
+                                    }
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+</div>
+
+<!-- Confirm Delete Dialog -->
+@if (vehicleToDelete()) {
+<app-confirm-dialog title="Elimina Veicolo"
+    [message]="'Sei sicuro di voler eliminare il veicolo ' + vehicleToDelete()!.plate + '?'" confirmText="Elimina"
+    confirmColor="red" (confirm)="deleteVehicle()" (cancel)="vehicleToDelete.set(null)" />
+}
