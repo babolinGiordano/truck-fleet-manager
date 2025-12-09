@@ -194,6 +194,135 @@
       "updatedAt": "2024-11-20T16:45:00Z"
     }
   ],
+  "invoices": [
+    {
+      "id": "inv1",
+      "invoiceNumber": "FT-2024-001",
+      "clientId": "c1",
+      "issueDate": "2024-11-25",
+      "dueDate": "2024-12-25",
+      "status": "paid",
+      "items": [
+        {
+          "description": "Trasporto Milano - Roma (VG-2024-001)",
+          "quantity": 1,
+          "unitPrice": 850,
+          "totalPrice": 850,
+          "tripId": "t1"
+        }
+      ],
+      "subtotal": 850,
+      "vatRate": 22,
+      "vatAmount": 187,
+      "total": 1037,
+      "paidDate": "2024-12-10",
+      "createdAt": "2024-11-25T10:00:00Z",
+      "updatedAt": "2024-12-10T14:30:00Z"
+    },
+    {
+      "id": "inv2",
+      "invoiceNumber": "FT-2024-002",
+      "clientId": "c2",
+      "issueDate": "2024-11-26",
+      "dueDate": "2024-12-26",
+      "status": "sent",
+      "items": [
+        {
+          "description": "Trasporto Torino - Napoli (VG-2024-002)",
+          "quantity": 1,
+          "unitPrice": 1200,
+          "totalPrice": 1200,
+          "tripId": "t2"
+        }
+      ],
+      "subtotal": 1200,
+      "vatRate": 22,
+      "vatAmount": 264,
+      "total": 1464,
+      "createdAt": "2024-11-26T11:00:00Z",
+      "updatedAt": "2024-11-26T11:00:00Z"
+    },
+    {
+      "id": "inv3",
+      "invoiceNumber": "FT-2024-003",
+      "clientId": "c3",
+      "issueDate": "2024-10-15",
+      "dueDate": "2024-11-15",
+      "status": "overdue",
+      "items": [
+        {
+          "description": "Trasporto Bologna - Bari",
+          "quantity": 1,
+          "unitPrice": 680,
+          "totalPrice": 680
+        },
+        {
+          "description": "Supplemento frigorifero",
+          "quantity": 1,
+          "unitPrice": 150,
+          "totalPrice": 150
+        }
+      ],
+      "subtotal": 830,
+      "vatRate": 22,
+      "vatAmount": 182.60,
+      "total": 1012.60,
+      "notes": "Sollecito inviato il 20/11/2024",
+      "createdAt": "2024-10-15T09:00:00Z",
+      "updatedAt": "2024-11-20T10:00:00Z"
+    },
+    {
+      "id": "inv4",
+      "invoiceNumber": "FT-2024-004",
+      "clientId": "c1",
+      "issueDate": "2024-12-01",
+      "dueDate": "2025-01-01",
+      "status": "draft",
+      "items": [
+        {
+          "description": "Trasporto componenti elettronici",
+          "quantity": 2,
+          "unitPrice": 450,
+          "totalPrice": 900
+        }
+      ],
+      "subtotal": 900,
+      "vatRate": 22,
+      "vatAmount": 198,
+      "total": 1098,
+      "createdAt": "2024-12-01T14:00:00Z",
+      "updatedAt": "2024-12-01T14:00:00Z"
+    },
+    {
+      "id": "inv5",
+      "invoiceNumber": "FT-2024-005",
+      "clientId": "c2",
+      "issueDate": "2024-09-20",
+      "dueDate": "2024-10-20",
+      "status": "paid",
+      "items": [
+        {
+          "description": "Trasporto macchinari industriali",
+          "quantity": 1,
+          "unitPrice": 1500,
+          "totalPrice": 1500
+        },
+        {
+          "description": "Servizio carico/scarico",
+          "quantity": 1,
+          "unitPrice": 200,
+          "totalPrice": 200
+        }
+      ],
+      "subtotal": 1700,
+      "vatRate": 22,
+      "vatAmount": 374,
+      "total": 2074,
+      "paidDate": "2024-10-18",
+      "createdAt": "2024-09-20T08:00:00Z",
+      "updatedAt": "2024-10-18T16:00:00Z"
+    }
+  ],
   "trips": [
     {
       "id": "t1",

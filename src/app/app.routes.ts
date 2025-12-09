@@ -38,8 +38,8 @@ export const routes: Routes = [
       },
       {
         path: 'invoices',
-        loadComponent: () => import('./features/invoices/invoice-list.component')
-          .then(m => m.InvoiceListComponent)
+        loadChildren: () => import('./features/invoices/invoices.routes')
+          .then(m => m.INVOICES_ROUTES)
       },
       {
         path: 'maintenance',
