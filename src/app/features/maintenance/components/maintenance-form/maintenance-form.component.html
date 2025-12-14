@@ -1,0 +1,216 @@
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <a routerLink="/maintenance"
+                class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors mb-2">
+                <span class="material-icons-outlined">arrow_back</span>
+                Torna alla lista
+            </a>
+            <h1 class="text-2xl font-bold text-gray-800">
+                {{ isEditMode ? 'Modifica Manutenzione' : 'Nuova Manutenzione' }}
+            </h1>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Vehicle & Type -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Veicolo e Tipo</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Vehicle -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Veicolo *
+                    </label>
+                    <select formControlName="vehicleId"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('vehicleId')?.invalid && form.get('vehicleId')?.touched}">
+                        <option value="">Seleziona veicolo</option>
+                        @for (vehicle of vehiclesService.vehicles(); track vehicle.id) {
+                        <option [value]="vehicle.id">{{ vehicle.plate }} - {{ vehicle.brand }} {{ vehicle.model }}</option>
+                        }
+                    </select>
+                    @if (form.get('vehicleId')?.invalid && form.get('vehicleId')?.touched) {
+                    <p class="text-red-500 text-sm mt-1">Veicolo obbligatorio</p>
+                    }
+                </div>
+
+                <!-- Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Tipo Manutenzione *
+                    </label>
+                    <select formControlName="type"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                        @for (type of maintenanceTypes; track type.value) {
+                        <option [value]="type.value">{{ type.label }}</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Stato *
+                    </label>
+                    <select formControlName="status"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                        @for (status of statusOptions; track status.value) {
+                        <option [value]="status.value">{{ status.label }}</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Date -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Data *
+                    </label>
+                    <input type="date" formControlName="date"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('date')?.invalid && form.get('date')?.touched}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Details -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Dettagli</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Description -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Descrizione *
+                    </label>
+                    <input type="text" formControlName="description"
+                        placeholder="Es: Cambio olio motore e filtro olio"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('description')?.invalid && form.get('description')?.touched}">
+                    @if (form.get('description')?.invalid && form.get('description')?.touched) {
+                    <p class="text-red-500 text-sm mt-1">Descrizione obbligatoria</p>
+                    }
+                </div>
+
+                <!-- Odometer -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Km al momento *
+                    </label>
+                    <input type="number" formControlName="odometer"
+                        placeholder="Es: 245000"
+                        min="0"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('odometer')?.invalid && form.get('odometer')?.touched}">
+                    @if (form.get('odometer')?.invalid && form.get('odometer')?.touched) {
+                    <p class="text-red-500 text-sm mt-1">Km obbligatori</p>
+                    }
+                </div>
+
+                <!-- Cost -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Costo (€) *
+                    </label>
+                    <input type="number" formControlName="cost"
+                        placeholder="Es: 350.00"
+                        step="0.01" min="0"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('cost')?.invalid && form.get('cost')?.touched}">
+                    @if (form.get('cost')?.invalid && form.get('cost')?.touched) {
+                    <p class="text-red-500 text-sm mt-1">Costo obbligatorio</p>
+                    }
+                </div>
+
+                <!-- Workshop -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Officina
+                    </label>
+                    <input type="text" formControlName="workshop"
+                        placeholder="Es: Officina Rossi SRL"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+
+                <!-- Invoice Number -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        N. Fattura
+                    </label>
+                    <input type="text" formControlName="invoiceNumber"
+                        placeholder="Es: FT-2024-0123"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Maintenance -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Prossima Manutenzione (opzionale)</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Next Maintenance Date -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Data Prevista
+                    </label>
+                    <input type="date" formControlName="nextMaintenanceDate"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+
+                <!-- Next Maintenance Km -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Km Previsti
+                    </label>
+                    <input type="number" formControlName="nextMaintenanceKm"
+                        placeholder="Es: 260000"
+                        min="0"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Note</h2>
+            <textarea formControlName="notes" rows="3"
+                placeholder="Note aggiuntive sulla manutenzione..."
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent
+                   resize-none"></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-end gap-4">
+            <a routerLink="/maintenance"
+                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg
+                   hover:bg-gray-50 font-medium transition-all">
+                Annulla
+            </a>
+            <button type="submit" [disabled]="form.invalid || saving()"
+                class="px-6 py-2 bg-accent hover:bg-accent-dark text-white rounded-lg
+                   font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                   flex items-center gap-2">
+                @if (saving()) {
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                }
+                {{ isEditMode ? 'Salva Modifiche' : 'Registra Manutenzione' }}
+            </button>
+        </div>
+    </form>
+</div>

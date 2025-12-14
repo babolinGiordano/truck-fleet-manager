@@ -43,13 +43,13 @@ export const routes: Routes = [
       },
       {
         path: 'maintenance',
-        loadComponent: () => import('./features/maintenance/maintenance-list.component')
-          .then(m => m.MaintenanceListComponent)
+        loadChildren: () => import('./features/maintenance/maintenance.routes')
+          .then(m => m.MAINTENANCE_ROUTES)
       },
       {
         path: 'fuel',
-        loadComponent: () => import('./features/fuel/fuel-list.component')
-          .then(m => m.FuelListComponent)
+        loadChildren: () => import('./features/fuel/fuel.routes')
+          .then(m => m.FUEL_ROUTES)
       },
       {
         path: 'live-map',

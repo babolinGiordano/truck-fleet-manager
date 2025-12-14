@@ -1,0 +1,232 @@
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Manutenzioni</h1>
+            <p class="text-gray-500 mt-1">
+                {{ maintenanceService.maintenanceCount() }} manutenzioni totali
+            </p>
+        </div>
+        <a routerLink="new" class="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dark
+                 text-white rounded-lg font-medium transition-all">
+            <span class="material-icons-outlined">add</span>
+            Nuova Manutenzione
+        </a>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div class="flex flex-col md:flex-row gap-4">
+            <!-- Search -->
+            <div class="relative flex-1">
+                <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    search
+                </span>
+                <input type="text" placeholder="Cerca per descrizione, officina, veicolo..."
+                    [value]="searchQuery()" (input)="onSearchChange($event)"
+                    class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg
+                     focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+            </div>
+
+            <!-- Status Filter -->
+            <div class="flex gap-2 flex-wrap">
+                <button (click)="statusFilter.set(null)" class="px-4 py-2 rounded-lg font-medium text-sm transition-all"
+                    [ngClass]="statusFilter() === null
+                ? 'bg-accent text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    Tutte
+                </button>
+                @for (status of statusOptions; track status.value) {
+                <button (click)="statusFilter.set(status.value)"
+                    class="px-4 py-2 rounded-lg font-medium text-sm transition-all" [ngClass]="statusFilter() === status.value
+                  ? 'bg-accent text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                    {{ status.label }}
+                </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-blue-600">build</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-800">{{ maintenanceService.maintenanceCount() }}</p>
+                    <p class="text-xs text-gray-500">Totali</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-amber-600">schedule</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-800">{{ maintenanceService.scheduledCount() }}</p>
+                    <p class="text-xs text-gray-500">Programmate</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-green-600">check_circle</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-800">{{ maintenanceService.completedCount() }}</p>
+                    <p class="text-xs text-gray-500">Completate</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-outlined text-purple-600">euro</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-800">
+                        {{ maintenanceService.totalCost() | number:'1.0-0':'it-IT' }}
+                    </p>
+                    <p class="text-xs text-gray-500">Spesa Totale</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (maintenanceService.loading()) {
+    <div class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+    </div>
+    }
+
+    <!-- Error State -->
+    @if (maintenanceService.error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+        <span class="material-icons-outlined text-red-500">error</span>
+        <p class="text-red-700">{{ maintenanceService.error() }}</p>
+        <button (click)="maintenanceService.loadMaintenanceRecords()" class="ml-auto text-red-600 hover:text-red-800 font-medium">
+            Riprova
+        </button>
+    </div>
+    }
+
+    <!-- Maintenance Table -->
+    @if (!maintenanceService.loading() && !maintenanceService.error()) {
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Data
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Veicolo
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Tipo
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Descrizione
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Stato
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Costo
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Azioni
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @for (maintenance of filteredRecords(); track maintenance.id) {
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <span class="text-gray-800">{{ maintenance.date | date:'dd/MM/yyyy' }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="font-mono font-medium text-gray-800">{{ getVehiclePlate(maintenance.vehicleId) }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full"
+                                [ngClass]="{
+                                    'bg-amber-100 text-amber-700': maintenance.type === 'oil_change',
+                                    'bg-gray-100 text-gray-700': maintenance.type === 'tires',
+                                    'bg-red-100 text-red-700': maintenance.type === 'brakes',
+                                    'bg-blue-100 text-blue-700': maintenance.type === 'filters',
+                                    'bg-green-100 text-green-700': maintenance.type === 'revision',
+                                    'bg-purple-100 text-purple-700': maintenance.type === 'repair',
+                                    'bg-slate-100 text-slate-700': maintenance.type === 'other'
+                                }">
+                                {{ typeLabels[maintenance.type] }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 max-w-xs truncate">
+                            {{ maintenance.description }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <app-status-badge [status]="maintenance.status" [labels]="statusLabels" />
+                        </td>
+                        <td class="px-6 py-4 text-gray-800 font-medium">
+                            {{ maintenance.cost | currency:'EUR':'symbol':'1.2-2':'it-IT' }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-end gap-2">
+                                <a [routerLink]="[maintenance.id]"
+                                    class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
+                                    title="Dettagli">
+                                    <span class="material-icons-outlined text-xl">visibility</span>
+                                </a>
+                                <a [routerLink]="[maintenance.id, 'edit']"
+                                    class="p-2 text-gray-400 hover:text-accent hover:bg-accent/10 rounded-lg transition-all"
+                                    title="Modifica">
+                                    <span class="material-icons-outlined text-xl">edit</span>
+                                </a>
+                                <button (click)="confirmDelete(maintenance)"
+                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                    title="Elimina">
+                                    <span class="material-icons-outlined text-xl">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center">
+                                <span class="material-icons-outlined text-5xl text-gray-300 mb-3">
+                                    build
+                                </span>
+                                <p class="text-gray-500 font-medium">Nessuna manutenzione trovata</p>
+                                <p class="text-gray-400 text-sm mt-1">
+                                    @if (searchQuery() || statusFilter()) {
+                                    Prova a modificare i filtri di ricerca
+                                    } @else {
+                                    Aggiungi la tua prima manutenzione
+                                    }
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+</div>
+
+<!-- Confirm Delete Dialog -->
+@if (maintenanceToDelete()) {
+<app-confirm-dialog title="Elimina Manutenzione"
+    [message]="'Sei sicuro di voler eliminare questa manutenzione del ' + (maintenanceToDelete()!.date | date:'dd/MM/yyyy') + '?'" confirmText="Elimina"
+    confirmColor="red" (confirm)="deleteRecord()" (cancel)="maintenanceToDelete.set(null)" />
+}

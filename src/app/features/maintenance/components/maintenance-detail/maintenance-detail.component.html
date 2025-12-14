@@ -1,0 +1,182 @@
+<div class="space-y-6">
+    <!-- Back Button & Actions -->
+    <div class="flex items-center justify-between">
+        <a routerLink="/maintenance" class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
+            <span class="material-icons-outlined">arrow_back</span>
+            Torna alla lista
+        </a>
+
+        @if (maintenanceService.selectedMaintenance(); as maintenance) {
+        <div class="flex items-center gap-2">
+            <a [routerLink]="['edit']" class="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dark
+                     text-white rounded-lg font-medium transition-all">
+                <span class="material-icons-outlined text-xl">edit</span>
+                Modifica
+            </a>
+        </div>
+        }
+    </div>
+
+    <!-- Loading -->
+    @if (maintenanceService.loading()) {
+    <div class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+    </div>
+    }
+
+    <!-- Maintenance Detail -->
+    @if (maintenanceService.selectedMaintenance(); as maintenance) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Info -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Header Card -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-start gap-4">
+                    <div class="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <span class="material-icons-outlined text-blue-600 text-3xl">build</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <h1 class="text-2xl font-bold text-gray-800">
+                                {{ typeLabels[maintenance.type] }}
+                            </h1>
+                            <app-status-badge [status]="maintenance.status" [labels]="statusLabels" />
+                        </div>
+                        <p class="text-gray-500">
+                            <span class="font-mono font-medium">{{ getVehiclePlate(maintenance.vehicleId) }}</span>
+                            @if (getVehicleInfo(maintenance.vehicleId)) {
+                            <span> • {{ getVehicleInfo(maintenance.vehicleId) }}</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Grid -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Dettagli Manutenzione</h2>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Data</p>
+                        <p class="font-medium text-gray-800">{{ maintenance.date | date:'dd MMMM yyyy':'':'it' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Veicolo</p>
+                        <p class="font-medium text-gray-800">
+                            {{ getVehiclePlate(maintenance.vehicleId) }}
+                            @if (getVehicleInfo(maintenance.vehicleId)) {
+                            <span class="text-gray-500 font-normal"> - {{ getVehicleInfo(maintenance.vehicleId) }}</span>
+                            }
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Tipo</p>
+                        <p class="font-medium text-gray-800">{{ typeLabels[maintenance.type] }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Km al momento</p>
+                        <p class="font-medium text-gray-800">{{ maintenance.odometer | number:'1.0-0':'it-IT' }} km</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Officina</p>
+                        <p class="font-medium text-gray-800">{{ maintenance.workshop || '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">N. Fattura</p>
+                        <p class="font-medium text-gray-800">{{ maintenance.invoiceNumber || '-' }}</p>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mt-6 pt-6 border-t border-gray-100">
+                    <p class="text-sm text-gray-500 mb-1">Descrizione</p>
+                    <p class="text-gray-800">{{ maintenance.description }}</p>
+                </div>
+            </div>
+
+            <!-- Next Maintenance -->
+            @if (maintenance.nextMaintenanceDate || maintenance.nextMaintenanceKm) {
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Prossima Manutenzione</h2>
+                <div class="grid grid-cols-2 gap-6">
+                    @if (maintenance.nextMaintenanceDate) {
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Data Prevista</p>
+                        <p class="font-medium text-gray-800">{{ maintenance.nextMaintenanceDate | date:'dd/MM/yyyy' }}</p>
+                    </div>
+                    }
+                    @if (maintenance.nextMaintenanceKm) {
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Km Previsti</p>
+                        <p class="font-medium text-gray-800">{{ maintenance.nextMaintenanceKm | number:'1.0-0':'it-IT' }} km</p>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+
+            <!-- Notes -->
+            @if (maintenance.notes) {
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Note</h2>
+                <p class="text-gray-600">{{ maintenance.notes }}</p>
+            </div>
+            }
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Cost Summary -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Costo</h2>
+                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <span class="material-icons-outlined text-accent">euro</span>
+                        <span class="text-gray-700 font-medium">Totale</span>
+                    </div>
+                    <span class="font-bold text-xl text-accent">
+                        {{ maintenance.cost | currency:'EUR':'symbol':'1.2-2':'it-IT' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Status Card -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Stato</h2>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span class="material-icons-outlined"
+                        [ngClass]="{
+                            'text-amber-500': maintenance.status === 'scheduled',
+                            'text-blue-500': maintenance.status === 'in_progress',
+                            'text-green-500': maintenance.status === 'completed',
+                            'text-gray-400': maintenance.status === 'cancelled'
+                        }">
+                        @switch (maintenance.status) {
+                            @case ('scheduled') { schedule }
+                            @case ('in_progress') { autorenew }
+                            @case ('completed') { check_circle }
+                            @case ('cancelled') { cancel }
+                        }
+                    </span>
+                    <span class="font-medium text-gray-700">{{ statusLabels[maintenance.status] }}</span>
+                </div>
+            </div>
+
+            <!-- Metadata -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Info Sistema</h2>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Creato il</span>
+                        <span class="text-gray-700">{{ maintenance.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Aggiornato il</span>
+                        <span class="text-gray-700">{{ maintenance.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>

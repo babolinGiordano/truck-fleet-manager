@@ -1,0 +1,200 @@
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <a routerLink="/fuel"
+                class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors mb-2">
+                <span class="material-icons-outlined">arrow_back</span>
+                Torna alla lista
+            </a>
+            <h1 class="text-2xl font-bold text-gray-800">
+                {{ isEditMode ? 'Modifica Rifornimento' : 'Nuovo Rifornimento' }}
+            </h1>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Vehicle & Driver -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Veicolo e Autista</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Vehicle -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Veicolo *
+                    </label>
+                    <select formControlName="vehicleId"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('vehicleId')?.invalid && form.get('vehicleId')?.touched}">
+                        <option value="">Seleziona veicolo</option>
+                        @for (vehicle of vehiclesService.vehicles(); track vehicle.id) {
+                        <option [value]="vehicle.id">{{ vehicle.plate }} - {{ vehicle.brand }} {{ vehicle.model }}</option>
+                        }
+                    </select>
+                    @if (form.get('vehicleId')?.invalid && form.get('vehicleId')?.touched) {
+                    <p class="text-red-500 text-sm mt-1">Veicolo obbligatorio</p>
+                    }
+                </div>
+
+                <!-- Driver -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Autista
+                    </label>
+                    <select formControlName="driverId"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                        <option value="">Seleziona autista (opzionale)</option>
+                        @for (driver of driversService.drivers(); track driver.id) {
+                        <option [value]="driver.id">{{ driver.firstName }} {{ driver.lastName }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fuel Info -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Dati Rifornimento</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Date -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Data *
+                    </label>
+                    <input type="date" formControlName="date"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('date')?.invalid && form.get('date')?.touched}">
+                </div>
+
+                <!-- Fuel Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Tipo Carburante *
+                    </label>
+                    <select formControlName="fuelType"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                        @for (type of fuelTypes; track type.value) {
+                        <option [value]="type.value">{{ type.label }}</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Station Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Stazione di Servizio
+                    </label>
+                    <input type="text" formControlName="stationName"
+                        placeholder="Es: ENI - Milano Est"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent">
+                </div>
+
+                <!-- Liters -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Litri *
+                    </label>
+                    <input type="number" formControlName="liters"
+                        placeholder="Es: 450"
+                        step="0.01" min="0"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('liters')?.invalid && form.get('liters')?.touched}">
+                    @if (form.get('liters')?.invalid && form.get('liters')?.touched) {
+                    <p class="text-red-500 text-sm mt-1">Litri obbligatori</p>
+                    }
+                </div>
+
+                <!-- Price per Liter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Prezzo al Litro (€) *
+                    </label>
+                    <input type="number" formControlName="pricePerLiter"
+                        placeholder="Es: 1.589"
+                        step="0.001" min="0"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('pricePerLiter')?.invalid && form.get('pricePerLiter')?.touched}">
+                    @if (form.get('pricePerLiter')?.invalid && form.get('pricePerLiter')?.touched) {
+                    <p class="text-red-500 text-sm mt-1">Prezzo obbligatorio</p>
+                    }
+                </div>
+
+                <!-- Total Cost (calculated) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Totale (€)
+                    </label>
+                    <input type="number" formControlName="totalCost"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       bg-gray-50 text-gray-700 font-medium"
+                        readonly>
+                    <p class="text-gray-400 text-xs mt-1">Calcolato automaticamente</p>
+                </div>
+
+                <!-- Odometer -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Km al Rifornimento *
+                    </label>
+                    <input type="number" formControlName="odometer"
+                        placeholder="Es: 245000"
+                        min="0"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                       focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                        [ngClass]="{'border-red-500': form.get('odometer')?.invalid && form.get('odometer')?.touched}">
+                    @if (form.get('odometer')?.invalid && form.get('odometer')?.touched) {
+                    <p class="text-red-500 text-sm mt-1">Km obbligatori</p>
+                    }
+                </div>
+
+                <!-- Full Tank -->
+                <div class="flex items-center">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" formControlName="fullTank"
+                            class="w-5 h-5 rounded border-gray-300 text-accent
+                           focus:ring-accent/50">
+                        <span class="text-sm font-medium text-gray-700">Pieno completo</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Note</h2>
+            <textarea formControlName="notes" rows="3"
+                placeholder="Note aggiuntive sul rifornimento..."
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg
+                   focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent
+                   resize-none"></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-end gap-4">
+            <a routerLink="/fuel"
+                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg
+                   hover:bg-gray-50 font-medium transition-all">
+                Annulla
+            </a>
+            <button type="submit" [disabled]="form.invalid || saving()"
+                class="px-6 py-2 bg-accent hover:bg-accent-dark text-white rounded-lg
+                   font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                   flex items-center gap-2">
+                @if (saving()) {
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                }
+                {{ isEditMode ? 'Salva Modifiche' : 'Registra Rifornimento' }}
+            </button>
+        </div>
+    </form>
+</div>
