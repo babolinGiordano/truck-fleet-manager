@@ -6,19 +6,19 @@ export const INVOICES_ROUTES: Routes = [
     loadComponent: () => import('./components/invoice-list/invoice-list.component')
       .then(m => m.InvoiceListComponent)
   },
-  // {
-  //   path: 'new',
-  //   loadComponent: () => import('./components/vehicle-form/vehicle-form.component')
-  //     .then(m => m.VehicleFormComponent)
-  // },
-  // {
-  //   path: ':id',
-  //   loadComponent: () => import('./components/vehicle-detail/vehicle-detail.component')
-  //     .then(m => m.VehicleDetailComponent)
-  // },
-  // {
-  //   path: ':id/edit',
-  //   loadComponent: () => import('./components/vehicle-form/vehicle-form.component')
-  //     .then(m => m.VehicleFormComponent)
-  // }
+  {
+    path: 'new',
+    loadComponent: () => import('./components/invoice-form/invoice-form.component')
+      .then(m => m.InvoiceFormComponent)
+  },
+  {
+    path: ':id',
+    loadComponent: () => import('./components/invoice-detail/invoice-detail.component')
+      .then(m => m.InvoiceDetailComponent)
+  },
+  {
+    path: ':id/edit',
+    loadComponent: () => import('./components/invoice-form/invoice-form.component')
+      .then(m => m.InvoiceFormComponent)
+  }
 ];

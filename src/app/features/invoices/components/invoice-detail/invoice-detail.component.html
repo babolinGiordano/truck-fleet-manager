@@ -1,0 +1,292 @@
+<div class="space-y-6">
+    <!-- Back Button & Actions -->
+    <div class="flex items-center justify-between">
+        <a routerLink="/invoices" class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
+            <span class="material-icons-outlined">arrow_back</span>
+            Torna alla lista
+        </a>
+
+        @if (invoicesService.selectedInvoice(); as invoice) {
+        <div class="flex items-center gap-2">
+            <!-- Status Actions -->
+            @if (invoice.status === 'draft') {
+            <button (click)="markAsSent()"
+                class="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all">
+                <span class="material-icons-outlined text-xl">send</span>
+                Segna come Inviata
+            </button>
+            }
+            @if (invoice.status === 'sent' || invoice.status === 'overdue') {
+            <button (click)="markAsPaid()"
+                class="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all">
+                <span class="material-icons-outlined text-xl">payments</span>
+                Segna come Pagata
+            </button>
+            }
+
+            <!-- Print -->
+            <button (click)="printInvoice()" [disabled]="isPrinting()"
+                class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-all disabled:opacity-50">
+                @if (isPrinting()) {
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-700"></div>
+                } @else {
+                <span class="material-icons-outlined text-xl">print</span>
+                }
+                Stampa PDF
+            </button>
+
+            <!-- Edit -->
+            <a [routerLink]="['edit']"
+                class="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dark text-white rounded-lg font-medium transition-all">
+                <span class="material-icons-outlined text-xl">edit</span>
+                Modifica
+            </a>
+
+            <!-- Delete -->
+            <button (click)="confirmDelete(invoice)"
+                class="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-medium transition-all">
+                <span class="material-icons-outlined text-xl">delete</span>
+            </button>
+        </div>
+        }
+    </div>
+
+    <!-- Loading -->
+    @if (invoicesService.loading()) {
+    <div class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+    </div>
+    }
+
+    <!-- Invoice Detail -->
+    @if (invoicesService.selectedInvoice(); as invoice) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Info -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Header Card -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-start gap-4">
+                    <div class="w-16 h-16 bg-accent/10 rounded-xl flex items-center justify-center">
+                        <span class="material-icons-outlined text-accent text-3xl">receipt_long</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <h1 class="text-2xl font-bold text-gray-800">
+                                {{ invoice.invoiceNumber }}
+                            </h1>
+                            <app-status-badge [status]="invoice.status" [labels]="statusLabels" />
+                        </div>
+                        @if (getClient(invoice.clientId); as client) {
+                        <p class="text-gray-500">
+                            Cliente: <a [routerLink]="['/clients', client.id]"
+                                class="text-accent hover:underline font-medium">{{ client.companyName }}</a>
+                        </p>
+                        }
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500">Totale</p>
+                        <p class="text-3xl font-bold text-gray-800">
+                            € {{ invoice.total | number:'1.2-2':'it-IT' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-lg font-semibold text-gray-800">Dettaglio Voci</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrizione
+                                </th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Qtà</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Prezzo
+                                    Unit.</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Totale</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @for (item of invoice.items; track $index) {
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4">
+                                    <p class="font-medium text-gray-800">{{ item.description }}</p>
+                                    @if (item.tripId && getTrip(item.tripId); as trip) {
+                                    <a [routerLink]="['/trips', trip.id]"
+                                        class="text-sm text-accent hover:underline flex items-center gap-1 mt-1">
+                                        <span class="material-icons-outlined text-sm">route</span>
+                                        {{ trip.origin.city }} → {{ trip.destination.city }}
+                                    </a>
+                                    }
+                                </td>
+                                <td class="px-6 py-4 text-center text-gray-600">{{ item.quantity }}</td>
+                                <td class="px-6 py-4 text-right text-gray-600">€ {{ item.unitPrice |
+                                    number:'1.2-2':'it-IT' }}</td>
+                                <td class="px-6 py-4 text-right font-medium text-gray-800">€ {{ item.totalPrice |
+                                    number:'1.2-2':'it-IT' }}</td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Totals -->
+                <div class="p-6 bg-gray-50 border-t border-gray-100">
+                    <div class="flex justify-end">
+                        <div class="w-64 space-y-2">
+                            <div class="flex justify-between text-gray-600">
+                                <span>Imponibile</span>
+                                <span>€ {{ invoice.subtotal | number:'1.2-2':'it-IT' }}</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>IVA ({{ invoice.vatRate }}%)</span>
+                                <span>€ {{ invoice.vatAmount | number:'1.2-2':'it-IT' }}</span>
+                            </div>
+                            <div class="flex justify-between text-xl font-bold text-gray-800 pt-2 border-t border-gray-200">
+                                <span>Totale</span>
+                                <span>€ {{ invoice.total | number:'1.2-2':'it-IT' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            @if (invoice.notes) {
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Note</h2>
+                <p class="text-gray-600 whitespace-pre-line">{{ invoice.notes }}</p>
+            </div>
+            }
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Dates Card -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Date</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span class="material-icons-outlined text-gray-500">event</span>
+                        <div>
+                            <p class="text-sm text-gray-500">Data Emissione</p>
+                            <p class="font-medium text-gray-800">{{ invoice.issueDate | date:'dd/MM/yyyy' }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-lg"
+                        [ngClass]="isOverdue(invoice) ? 'bg-red-50' : 'bg-gray-50'">
+                        <span class="material-icons-outlined"
+                            [ngClass]="isOverdue(invoice) ? 'text-red-500' : 'text-gray-500'">schedule</span>
+                        <div>
+                            <p class="text-sm" [ngClass]="isOverdue(invoice) ? 'text-red-500' : 'text-gray-500'">Data
+                                Scadenza</p>
+                            <p class="font-medium" [ngClass]="isOverdue(invoice) ? 'text-red-600' : 'text-gray-800'">
+                                {{ invoice.dueDate | date:'dd/MM/yyyy' }}
+                                @if (isOverdue(invoice)) {
+                                <span class="text-red-500 text-sm ml-1">(Scaduta)</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                    @if (invoice.paidDate) {
+                    <div class="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                        <span class="material-icons-outlined text-green-500">check_circle</span>
+                        <div>
+                            <p class="text-sm text-green-600">Data Pagamento</p>
+                            <p class="font-medium text-green-700">{{ invoice.paidDate | date:'dd/MM/yyyy' }}</p>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Client Card -->
+            @if (getClient(invoice.clientId); as client) {
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Cliente</h2>
+                <div class="space-y-3">
+                    <div class="flex items-start gap-3">
+                        <span class="material-icons-outlined text-gray-400">business</span>
+                        <div>
+                            <p class="font-medium text-gray-800">{{ client.companyName }}</p>
+                            <p class="text-sm text-gray-500">P.IVA: {{ client.vatNumber }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <span class="material-icons-outlined text-gray-400">location_on</span>
+                        <div>
+                            <p class="text-sm text-gray-600">{{ client.address }}</p>
+                            <p class="text-sm text-gray-600">{{ client.postalCode }} {{ client.city }} ({{
+                                client.province }})</p>
+                        </div>
+                    </div>
+                    @if (client.email) {
+                    <div class="flex items-center gap-3">
+                        <span class="material-icons-outlined text-gray-400">email</span>
+                        <a href="mailto:{{ client.email }}" class="text-sm text-accent hover:underline">{{
+                            client.email }}</a>
+                    </div>
+                    }
+                    <a [routerLink]="['/clients', client.id]"
+                        class="flex items-center gap-2 mt-4 text-accent hover:text-accent-dark font-medium text-sm">
+                        <span class="material-icons-outlined text-lg">open_in_new</span>
+                        Visualizza Cliente
+                    </a>
+                </div>
+            </div>
+            }
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Azioni Rapide</h2>
+                <div class="space-y-2">
+                    <button (click)="printInvoice()" [disabled]="isPrinting()"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600 hover:bg-gray-50 rounded-lg transition-all disabled:opacity-50">
+                        <span class="material-icons-outlined">print</span>
+                        Stampa Fattura
+                    </button>
+                    @if (invoice.status === 'draft') {
+                    <button (click)="markAsSent()"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-left text-blue-600 hover:bg-blue-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">send</span>
+                        Segna come Inviata
+                    </button>
+                    }
+                    @if (invoice.status === 'sent' || invoice.status === 'overdue') {
+                    <button (click)="markAsPaid()"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-left text-green-600 hover:bg-green-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">payments</span>
+                        Segna come Pagata
+                    </button>
+                    }
+                    <a [routerLink]="['edit']"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-600 hover:bg-gray-50 rounded-lg transition-all">
+                        <span class="material-icons-outlined">edit</span>
+                        Modifica Fattura
+                    </a>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <p class="text-xs text-gray-500">
+                    Creata il {{ invoice.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                </p>
+                <p class="text-xs text-gray-500">
+                    Ultimo aggiornamento {{ invoice.updatedAt | date:'dd/MM/yyyy HH:mm' }}
+                </p>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Confirm Delete Dialog -->
+    @if (invoiceToDelete(); as invoice) {
+    <app-confirm-dialog title="Elimina Fattura"
+        message="Sei sicuro di voler eliminare la fattura {{ invoice.invoiceNumber }}? Questa azione non può essere annullata."
+        confirmText="Elimina" cancelText="Annulla" (confirm)="deleteInvoice()" (cancel)="invoiceToDelete.set(null)" />
+    }
+</div>
