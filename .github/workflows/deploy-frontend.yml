@@ -1,0 +1,71 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/frontend/**'
+      - 'libs/shared/**'
+      - '.github/workflows/deploy-frontend.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/frontend/**'
+      - 'libs/shared/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared library
+        run: pnpm --filter @truck-fleet/shared build
+
+      - name: Build frontend
+        run: pnpm --filter @truck-fleet/frontend build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: apps/frontend/dist/
+          retention-days: 7
+
+  # Uncomment and configure for your deployment platform
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  #
+  #   steps:
+  #     - name: Download build artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: frontend-dist
+  #         path: dist
+  #
+  #     # Railway deployment
+  #     - name: Deploy to Railway
+  #       uses: bervProject/railway-deploy@main
+  #       with:
+  #         railway_token: ${{ secrets.RAILWAY_TOKEN }}
+  #         service: frontend

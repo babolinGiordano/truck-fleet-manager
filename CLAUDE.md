@@ -4,76 +4,133 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Truck Fleet Manager is an Angular 19.2 web application for managing truck fleet operations. Built with standalone components, signals-based state management, and Italian localization.
+Truck Fleet Manager is a monorepo containing an Angular 19 frontend and NestJS backend for managing truck fleet operations. Built with TypeScript, featuring shared types between frontend and backend.
 
-**Tech Stack:** Angular 19.2, TypeScript 5.8, SCSS, Tailwind CSS 3.4, Angular Material 19.2, NGX-Charts, Leaflet maps (@bluehalo/ngx-leaflet), JSON-Server mock backend.
+## Monorepo Structure
+
+```
+truck-fleet-manager/
+├── apps/
+│   ├── frontend/          # Angular 19 app
+│   └── backend/           # NestJS API
+├── libs/
+│   └── shared/            # Shared TypeScript types
+├── docker-compose.yml     # PostgreSQL + Redis
+└── pnpm-workspace.yaml    # Workspace config
+```
+
+**Tech Stack:**
+- **Frontend:** Angular 19.2, TypeScript 5.8, SCSS, Tailwind CSS 3.4, Angular Material 19.2
+- **Backend:** NestJS 10, Prisma ORM, PostgreSQL, Swagger/OpenAPI
+- **Shared:** TypeScript interfaces for all entities
 
 ## Development Commands
 
 ```bash
-npm run dev          # Start app + mock API (recommended for development)
-npm run start        # Start Angular dev server only (port 4200)
-npm run api          # Start JSON-Server mock API only (port 3000)
-npm run build        # Production build
-npm test             # Run unit tests via Karma
+# Root commands
+pnpm install             # Install all dependencies
+pnpm dev                 # Start frontend + backend concurrently
+pnpm build               # Build all packages
+
+# Frontend
+pnpm dev:frontend        # Start Angular dev server (port 4200)
+pnpm build:frontend      # Production build
+
+# Backend
+pnpm dev:backend         # Start NestJS with hot reload (port 3000)
+pnpm build:backend       # Production build
+
+# Database
+pnpm docker:up           # Start PostgreSQL + Redis containers
+pnpm docker:down         # Stop containers
+pnpm db:generate         # Generate Prisma client
+pnpm db:migrate          # Run migrations
+pnpm db:studio           # Open Prisma Studio
 ```
 
 ## Architecture
 
-### Directory Structure
+### Frontend (`apps/frontend/`)
 
-- `src/app/core/services/` - Signals-based services with RxJS (e.g., `vehicles.service.ts`)
-- `src/app/features/` - Lazy-loaded feature modules (dashboard, vehicles, drivers, trips, etc.)
-- `src/app/layout/` - Main layout with header and sidebar components
-- `src/app/shared/` - Reusable components (status-badge, confirm-dialog, data-table), pipes, directives
-- `src/app/models/` - TypeScript interfaces with barrel exports in `index.ts`
-- `mock-api/db.json` - JSON-Server database file
+- `src/app/core/services/` - Signals-based services with RxJS
+- `src/app/features/` - Lazy-loaded feature modules (dashboard, vehicles, drivers, etc.)
+- `src/app/layout/` - Main layout with header and sidebar
+- `src/app/shared/` - Reusable components, pipes, directives
+- `src/app/models/` - Re-exports from `@truck-fleet/shared`
 
-### Key Patterns
+### Backend (`apps/backend/`)
 
-**State Management:** Angular Signals pattern
+- `src/modules/` - Feature modules (vehicles, drivers, clients, trips, invoices, fuel, maintenance)
+- `src/prisma/` - Prisma service and module
+- `prisma/schema.prisma` - Database schema
+- API prefix: `/api`
+- Swagger docs: `/api/docs`
+
+### Shared Library (`libs/shared/`)
+
+- `src/models/` - TypeScript interfaces and constants
+- Import as: `import { Vehicle, Driver } from '@truck-fleet/shared'`
+
+## Key Patterns
+
+**Frontend State Management:** Angular Signals
 ```typescript
 private vehiclesSignal = signal<Vehicle[]>([]);
 readonly vehicles = this.vehiclesSignal.asReadonly();
-readonly vehicleCount = computed(() => this.vehiclesSignal().length);
 ```
 
-**Components:** Standalone by default (Angular 19+) with `inject()` for DI
+**Backend Module Structure:**
 ```typescript
-@Component({
-  imports: [CommonModule, ...],  // standalone: true is now the default
-})
-export class ComponentName {
-  private service = inject(ServiceName);
-}
+// controller.ts - REST endpoints
+// service.ts - Business logic with Prisma
+// dto/ - Validation DTOs with class-validator
 ```
 
-**Routing:** Lazy-loaded via `loadComponent` in `app.routes.ts`
+**Shared Types Import:**
+```typescript
+// Frontend
+import { Vehicle, VehicleStatus } from '@truck-fleet/shared';
 
-### Styling
+// Backend
+import { Vehicle } from '@truck-fleet/shared';
+```
+
+## API Endpoints
+
+All endpoints prefixed with `/api`:
+
+| Resource | Endpoints |
+|----------|-----------|
+| Vehicles | GET/POST `/vehicles`, GET/PATCH/DELETE `/vehicles/:id` |
+| Drivers | GET/POST `/drivers`, GET/PATCH/DELETE `/drivers/:id` |
+| Clients | GET/POST `/clients`, GET/PATCH/DELETE `/clients/:id` |
+| Trips | GET/POST `/trips`, GET/PATCH/DELETE `/trips/:id` |
+| Invoices | GET/POST `/invoices`, GET/PATCH/DELETE `/invoices/:id` |
+| Fuel | GET/POST `/fuel`, GET/PATCH/DELETE `/fuel/:id` |
+| Maintenance | GET/POST `/maintenance`, GET/PATCH/DELETE `/maintenance/:id` |
+
+## Database
+
+PostgreSQL via Docker. Schema defined in `apps/backend/prisma/schema.prisma`.
+
+**Main entities:** Vehicle, Driver, Client, Trip, Invoice, InvoiceItem, FuelRecord, MaintenanceRecord
+
+## Styling
 
 - Primary styling with Tailwind utility classes
 - Custom colors: sidebar `#1a1f2e`, accent orange `#f97316`
 - Material Icons (outlined variant)
-- Global styles in `src/styles.scss`
+- All UI text in Italian
 
-### Localization
+## Environment Variables
 
-All UI is in Italian:
-- Labels: "Veicoli", "Autisti", "Fatturato mese"
-- Dates/numbers: `it-IT` locale
-- Status constants: `VEHICLE_STATUS_LABELS`, etc. export Italian text
+Backend (`.env` in `apps/backend/`):
+- `DATABASE_URL` - PostgreSQL connection string
+- `PORT` - API port (default 3000)
+- `CORS_ORIGIN` - Frontend URL for CORS
 
-## Data Models
+## CI/CD
 
-- **Vehicle:** License plate, GPS position, status (available|in_transit|maintenance|inactive), insurance/revision dates
-- **Driver:** Italian fiscal code, license/CQC/ADR expiry, status (active|on_leave|inactive)
-- **Trip:** Origin/destination with coordinates, cargo info (weight, volume, ADR, temperature), pricing
-- **Client:** Company data for invoicing
-
-## Build Configuration
-
-- Output: `dist/truck-fleet-manager`
-- Production budgets: 500KB initial, 1MB max
-- Tests skipped by default in schematics
-- Strict TypeScript enabled
+GitHub Actions with selective deployment:
+- `.github/workflows/deploy-frontend.yml` - Triggers on `apps/frontend/**` or `libs/shared/**`
+- `.github/workflows/deploy-backend.yml` - Triggers on `apps/backend/**` or `libs/shared/**`

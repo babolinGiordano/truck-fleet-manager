@@ -1,15 +1,22 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
+dist
+tmp
+out-tsc
+bazel-out
 
 # Node
-/node_modules
+node_modules
 npm-debug.log
 yarn-error.log
+.pnpm-debug.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+!.env.example
 
 # IDEs and editors
 .idea/
@@ -28,8 +35,8 @@ yarn-error.log
 !.vscode/extensions.json
 .history/*
 
-# Miscellaneous
-/.angular/cache
+# Angular
+.angular/cache
 .sass-cache/
 /connect.lock
 /coverage
@@ -37,6 +44,20 @@ yarn-error.log
 testem.log
 /typings
 
+# NestJS
+apps/backend/dist
+
+# Prisma
+apps/backend/prisma/migrations/*_migration_lock.toml
+
 # System files
 .DS_Store
 Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Testing
+coverage
+.nyc_output

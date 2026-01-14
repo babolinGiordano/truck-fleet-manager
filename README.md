@@ -200,3 +200,22 @@ L'interfaccia e completamente in italiano:
 ## Licenza
 
 Progetto privato.
+
+Come Avviare il Progetto
+
+# 1. Installa pnpm se non l'hai
+npm install -g pnpm
+
+# 2. Installa le dipendenze
+cd truck-fleet-manager
+pnpm install
+
+# 3. Avvia PostgreSQL con Docker
+pnpm docker:up
+
+# 4. Genera il client Prisma e crea le tabelle
+pnpm db:generate
+pnpm db:migrate
+
+# 5. Avvia frontend + backend
+pnpm dev

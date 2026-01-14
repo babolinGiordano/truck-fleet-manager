@@ -1,0 +1,77 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/backend/**'
+      - 'libs/shared/**'
+      - '.github/workflows/deploy-backend.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/backend/**'
+      - 'libs/shared/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm --filter @truck-fleet/backend prisma generate
+
+      - name: Build shared library
+        run: pnpm --filter @truck-fleet/shared build
+
+      - name: Build backend
+        run: pnpm --filter @truck-fleet/backend build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-dist
+          path: apps/backend/dist/
+          retention-days: 7
+
+  # Uncomment and configure for your deployment platform
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  #
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #
+  #     # Railway deployment
+  #     - name: Deploy to Railway
+  #       uses: bervProject/railway-deploy@main
+  #       with:
+  #         railway_token: ${{ secrets.RAILWAY_TOKEN }}
+  #         service: backend
+  #
+  #     # Run migrations
+  #     - name: Run database migrations
+  #       run: pnpm --filter @truck-fleet/backend prisma migrate deploy
+  #       env:
+  #         DATABASE_URL: ${{ secrets.DATABASE_URL }}

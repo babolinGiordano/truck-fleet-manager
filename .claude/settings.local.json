@@ -5,7 +5,21 @@
       "Bash(ng update:*)",
       "Bash(npm install:*)",
       "Bash(npm uninstall:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(pnpm install)",
+      "Bash(pnpm docker:up:*)",
+      "Bash(docker:*)",
+      "Bash(start \"\" \"C:/Program Files/Docker/Docker/Docker Desktop.exe\")",
+      "Bash(pnpm db:generate:*)",
+      "Bash(pnpm db:migrate:*)",
+      "Bash(npx prisma migrate:*)",
+      "Bash(docker-compose restart:*)",
+      "Bash(pnpm db:seed:*)",
+      "Bash(pnpm dev:backend:*)",
+      "Bash(pnpm dev:frontend:*)",
+      "Bash(curl:*)",
+      "Bash(echo:*)",
+      "Bash(pnpm db:studio:*)"
     ],
     "deny": [],
     "ask": []

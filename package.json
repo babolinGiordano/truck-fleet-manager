@@ -1,52 +1,31 @@
 {
   "name": "truck-fleet-manager",
   "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "api": "json-server --watch mock-api/db.json --port 3000",
-    "dev": "concurrently \"npm run start\" \"npm run api\""
-  },
   "private": true,
-  "dependencies": {
-    "@angular/animations": "^19.2.17",
-    "@angular/cdk": "^19.2.19",
-    "@angular/common": "^19.2.17",
-    "@angular/compiler": "^19.2.17",
-    "@angular/core": "^19.2.17",
-    "@angular/forms": "^19.2.17",
-    "@angular/material": "^19.2.19",
-    "@angular/platform-browser": "^19.2.17",
-    "@angular/platform-browser-dynamic": "^19.2.17",
-    "@angular/router": "^19.2.17",
-    "@bluehalo/ngx-leaflet": "^19.0.0",
-    "@swimlane/ngx-charts": "^23.1.0",
-    "date-fns": "^4.1.0",
-    "leaflet": "^1.9.4",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.15.1"
+  "description": "Truck Fleet Manager - Monorepo with Angular frontend and NestJS backend",
+  "scripts": {
+    "dev": "concurrently \"pnpm dev:frontend\" \"pnpm dev:backend\"",
+    "dev:frontend": "pnpm --filter @truck-fleet/frontend start",
+    "dev:backend": "pnpm --filter @truck-fleet/backend start:dev",
+    "build": "pnpm -r build",
+    "build:frontend": "pnpm --filter @truck-fleet/frontend build",
+    "build:backend": "pnpm --filter @truck-fleet/backend build",
+    "test": "pnpm -r test",
+    "test:frontend": "pnpm --filter @truck-fleet/frontend test",
+    "db:generate": "pnpm --filter @truck-fleet/backend prisma generate",
+    "db:migrate": "pnpm --filter @truck-fleet/backend prisma migrate dev",
+    "db:migrate:prod": "pnpm --filter @truck-fleet/backend prisma migrate deploy",
+    "db:studio": "pnpm --filter @truck-fleet/backend prisma studio",
+    "db:seed": "pnpm --filter @truck-fleet/backend prisma db seed",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^19.2.19",
-    "@angular/cli": "^19.2.19",
-    "@angular/compiler-cli": "^19.2.17",
-    "@types/jasmine": "~5.1.0",
-    "@types/leaflet": "^1.9.21",
-    "autoprefixer": "^10.4.22",
-    "concurrently": "^9.2.1",
-    "jasmine-core": "~5.1.0",
-    "json-server": "^1.0.0-beta.3",
-    "karma": "~6.4.0",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.18",
-    "typescript": "~5.8.3"
-  }
+    "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
 }

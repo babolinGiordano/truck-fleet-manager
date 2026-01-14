@@ -1,0 +1,287 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============== VEHICLES ==============
+model Vehicle {
+  id              String        @id @default(cuid())
+  plate           String        @unique
+  brand           String
+  model           String
+  year            Int
+  status          VehicleStatus @default(available)
+  currentDriverId String?
+  lastLat         Float?
+  lastLng         Float?
+  lastPositionAt  DateTime?
+  kmTotal         Int           @default(0)
+  insuranceExpiry DateTime
+  revisionExpiry  DateTime
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  trips           Trip[]
+  fuelRecords     FuelRecord[]
+  maintenance     MaintenanceRecord[]
+
+  @@map("vehicles")
+}
+
+enum VehicleStatus {
+  available
+  in_transit
+  maintenance
+  inactive
+}
+
+// ============== DRIVERS ==============
+model Driver {
+  id                String       @id @default(cuid())
+  firstName         String
+  lastName          String
+  fiscalCode        String       @unique
+  phone             String
+  email             String?
+  licenseNumber     String
+  licenseExpiry     DateTime
+  cqcExpiry         DateTime
+  adrExpiry         DateTime?
+  status            DriverStatus @default(active)
+  assignedVehicleId String?
+  hireDate          DateTime
+  notes             String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  // Relations
+  trips             Trip[]
+  fuelRecords       FuelRecord[]
+
+  @@map("drivers")
+}
+
+enum DriverStatus {
+  active
+  on_leave
+  inactive
+}
+
+// ============== CLIENTS ==============
+model Client {
+  id            String   @id @default(cuid())
+  companyName   String
+  vatNumber     String   @unique
+  fiscalCode    String?
+  address       String
+  city          String
+  province      String
+  postalCode    String
+  country       String   @default("Italia")
+  phone         String
+  email         String
+  pec           String?
+  sdiCode       String?
+  contactPerson String?
+  notes         String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  trips    Trip[]
+  invoices Invoice[]
+
+  @@map("clients")
+}
+
+// ============== TRIPS ==============
+model Trip {
+  id               String     @id @default(cuid())
+  tripNumber       String     @unique
+  vehicleId        String
+  driverId         String
+  clientId         String
+
+  // Origin
+  originCompany    String?
+  originAddress    String
+  originCity       String
+  originProvince   String
+  originPostalCode String
+  originCountry    String     @default("Italia")
+  originLat        Float?
+  originLng        Float?
+
+  // Destination
+  destCompany      String?
+  destAddress      String
+  destCity         String
+  destProvince     String
+  destPostalCode   String
+  destCountry      String     @default("Italia")
+  destLat          Float?
+  destLng          Float?
+
+  // Cargo
+  cargoDescription String
+  cargoWeight      Float
+  cargoVolume      Float?
+  cargoPackages    Int?
+  cargoIsADR       Boolean    @default(false)
+  cargoTemperature Float?
+
+  status           TripStatus @default(planned)
+  plannedDeparture DateTime
+  actualDeparture  DateTime?
+  plannedArrival   DateTime
+  actualArrival    DateTime?
+  kmPlanned        Int
+  kmActual         Int?
+  price            Decimal    @db.Decimal(10, 2)
+  notes            String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  // Relations
+  vehicle      Vehicle       @relation(fields: [vehicleId], references: [id])
+  driver       Driver        @relation(fields: [driverId], references: [id])
+  client       Client        @relation(fields: [clientId], references: [id])
+  invoiceItems InvoiceItem[]
+
+  @@map("trips")
+}
+
+enum TripStatus {
+  planned
+  in_progress
+  completed
+  cancelled
+}
+
+// ============== INVOICES ==============
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  clientId      String
+  issueDate     DateTime
+  dueDate       DateTime
+  status        InvoiceStatus @default(draft)
+  subtotal      Decimal       @db.Decimal(10, 2)
+  vatRate       Decimal       @db.Decimal(5, 2) @default(22)
+  vatAmount     Decimal       @db.Decimal(10, 2)
+  total         Decimal       @db.Decimal(10, 2)
+  notes         String?
+  paidDate      DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  client Client        @relation(fields: [clientId], references: [id])
+  items  InvoiceItem[]
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Decimal @db.Decimal(10, 2)
+  totalPrice  Decimal @db.Decimal(10, 2)
+  tripId      String?
+
+  // Relations
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  trip    Trip?   @relation(fields: [tripId], references: [id])
+
+  @@map("invoice_items")
+}
+
+enum InvoiceStatus {
+  draft
+  sent
+  paid
+  overdue
+  cancelled
+}
+
+// ============== FUEL RECORDS ==============
+model FuelRecord {
+  id            String   @id @default(cuid())
+  vehicleId     String
+  driverId      String?
+  date          DateTime
+  liters        Decimal  @db.Decimal(10, 2)
+  pricePerLiter Decimal  @db.Decimal(10, 4)
+  totalCost     Decimal  @db.Decimal(10, 2)
+  fuelType      FuelType @default(diesel)
+  stationName   String?
+  odometer      Int
+  fullTank      Boolean  @default(true)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  driver  Driver? @relation(fields: [driverId], references: [id])
+
+  @@map("fuel_records")
+}
+
+enum FuelType {
+  diesel
+  gasoline
+  lpg
+  methane
+  electric
+}
+
+// ============== MAINTENANCE RECORDS ==============
+model MaintenanceRecord {
+  id                  String            @id @default(cuid())
+  vehicleId           String
+  type                MaintenanceType
+  description         String
+  date                DateTime
+  odometer            Int
+  cost                Decimal           @db.Decimal(10, 2)
+  workshop            String?
+  invoiceNumber       String?
+  nextMaintenanceDate DateTime?
+  nextMaintenanceKm   Int?
+  status              MaintenanceStatus @default(scheduled)
+  notes               String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  // Relations
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+
+  @@map("maintenance_records")
+}
+
+enum MaintenanceType {
+  oil_change
+  tires
+  brakes
+  filters
+  revision
+  repair
+  other
+}
+
+enum MaintenanceStatus {
+  scheduled
+  in_progress
+  completed
+  cancelled
+}
