@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Truck Fleet Manager is a monorepo containing an Angular 19 frontend and NestJS backend for managing truck fleet operations. Built with TypeScript, featuring shared types between frontend and backend.
+Truck Fleet Manager is a monorepo containing an Angular 19 frontend and Spring Boot backend for managing truck fleet operations.
 
 ## Monorepo Structure
 
@@ -12,23 +12,23 @@ Truck Fleet Manager is a monorepo containing an Angular 19 frontend and NestJS b
 truck-fleet-manager/
 ├── apps/
 │   ├── frontend/          # Angular 19 app
-│   └── backend/           # NestJS API
+│   └── backend/           # Spring Boot API (Java 21)
 ├── libs/
-│   └── shared/            # Shared TypeScript types
+│   └── shared/            # Shared TypeScript types (frontend)
 ├── docker-compose.yml     # PostgreSQL + Redis
 └── pnpm-workspace.yaml    # Workspace config
 ```
 
 **Tech Stack:**
 - **Frontend:** Angular 19.2, TypeScript 5.8, SCSS, Tailwind CSS 3.4, Angular Material 19.2
-- **Backend:** NestJS 10, Prisma ORM, PostgreSQL, Swagger/OpenAPI
-- **Shared:** TypeScript interfaces for all entities
+- **Backend:** Java 21, Spring Boot 3.4, Spring Data JPA, PostgreSQL, Flyway, Swagger/OpenAPI
+- **Shared:** TypeScript interfaces for frontend entities
 
 ## Development Commands
 
 ```bash
 # Root commands
-pnpm install             # Install all dependencies
+pnpm install             # Install frontend dependencies
 pnpm dev                 # Start frontend + backend concurrently
 pnpm build               # Build all packages
 
@@ -36,16 +36,14 @@ pnpm build               # Build all packages
 pnpm dev:frontend        # Start Angular dev server (port 4200)
 pnpm build:frontend      # Production build
 
-# Backend
-pnpm dev:backend         # Start NestJS with hot reload (port 3000)
-pnpm build:backend       # Production build
+# Backend (requires Java 21 + Maven)
+pnpm dev:backend         # Start Spring Boot with hot reload (port 3000)
+pnpm build:backend       # Production build (mvn package)
+pnpm test:backend        # Run backend tests
 
 # Database
 pnpm docker:up           # Start PostgreSQL + Redis containers
 pnpm docker:down         # Stop containers
-pnpm db:generate         # Generate Prisma client
-pnpm db:migrate          # Run migrations
-pnpm db:studio           # Open Prisma Studio
 ```
 
 ## Architecture
@@ -60,11 +58,23 @@ pnpm db:studio           # Open Prisma Studio
 
 ### Backend (`apps/backend/`)
 
-- `src/modules/` - Feature modules (vehicles, drivers, clients, trips, invoices, fuel, maintenance)
-- `src/prisma/` - Prisma service and module
-- `prisma/schema.prisma` - Database schema
-- API prefix: `/api`
-- Swagger docs: `/api/docs`
+Spring Boot application with layered architecture:
+
+- `src/main/java/com/truckfleet/`
+  - `config/` - CORS, OpenAPI configuration
+  - `entity/` - JPA entities
+  - `entity/enums/` - Status and type enums
+  - `repository/` - Spring Data JPA repositories
+  - `dto/` - Request/Response DTOs with validation
+  - `mapper/` - MapStruct mappers
+  - `service/` - Business logic
+  - `controller/` - REST controllers
+  - `common/exception/` - Exception handling
+- `src/main/resources/`
+  - `application.yml` - Configuration
+  - `db/migration/` - Flyway migrations
+- API prefix: `/api` (configured via context-path)
+- Swagger docs: `/api/docs/swagger-ui.html`
 
 ### Shared Library (`libs/shared/`)
 
@@ -80,19 +90,12 @@ readonly vehicles = this.vehiclesSignal.asReadonly();
 ```
 
 **Backend Module Structure:**
-```typescript
-// controller.ts - REST endpoints
-// service.ts - Business logic with Prisma
-// dto/ - Validation DTOs with class-validator
-```
-
-**Shared Types Import:**
-```typescript
-// Frontend
-import { Vehicle, VehicleStatus } from '@truck-fleet/shared';
-
-// Backend
-import { Vehicle } from '@truck-fleet/shared';
+```java
+// Controller - REST endpoints with Swagger annotations
+// Service - Business logic with transactions
+// Repository - Spring Data JPA interface
+// DTO - Jakarta validation annotations
+// Mapper - MapStruct interface
 ```
 
 ## API Endpoints
@@ -101,19 +104,21 @@ All endpoints prefixed with `/api`:
 
 | Resource | Endpoints |
 |----------|-----------|
-| Vehicles | GET/POST `/vehicles`, GET/PATCH/DELETE `/vehicles/:id` |
-| Drivers | GET/POST `/drivers`, GET/PATCH/DELETE `/drivers/:id` |
-| Clients | GET/POST `/clients`, GET/PATCH/DELETE `/clients/:id` |
-| Trips | GET/POST `/trips`, GET/PATCH/DELETE `/trips/:id` |
-| Invoices | GET/POST `/invoices`, GET/PATCH/DELETE `/invoices/:id` |
-| Fuel | GET/POST `/fuel`, GET/PATCH/DELETE `/fuel/:id` |
-| Maintenance | GET/POST `/maintenance`, GET/PATCH/DELETE `/maintenance/:id` |
+| Vehicles | GET/POST `/vehicles`, GET/PATCH/DELETE `/vehicles/{id}` |
+| Drivers | GET/POST `/drivers`, GET/PATCH/DELETE `/drivers/{id}` |
+| Clients | GET/POST `/clients`, GET/PATCH/DELETE `/clients/{id}` |
+| Trips | GET/POST `/trips`, GET/PATCH/DELETE `/trips/{id}` |
+| Invoices | GET/POST `/invoices`, GET/PATCH/DELETE `/invoices/{id}` |
+| Fuel | GET/POST `/fuel`, GET/PATCH/DELETE `/fuel/{id}` |
+| Maintenance | GET/POST `/maintenance`, GET/PATCH/DELETE `/maintenance/{id}` |
 
 ## Database
 
-PostgreSQL via Docker. Schema defined in `apps/backend/prisma/schema.prisma`.
+PostgreSQL via Docker. Schema managed by Flyway migrations in `apps/backend/src/main/resources/db/migration/`.
 
 **Main entities:** Vehicle, Driver, Client, Trip, Invoice, InvoiceItem, FuelRecord, MaintenanceRecord
+
+**Enums:** VehicleStatus, DriverStatus, TripStatus, InvoiceStatus, FuelType, MaintenanceType, MaintenanceStatus
 
 ## Styling
 
@@ -124,13 +129,17 @@ PostgreSQL via Docker. Schema defined in `apps/backend/prisma/schema.prisma`.
 
 ## Environment Variables
 
-Backend (`.env` in `apps/backend/`):
-- `DATABASE_URL` - PostgreSQL connection string
-- `PORT` - API port (default 3000)
-- `CORS_ORIGIN` - Frontend URL for CORS
+Backend (`.env` or system environment):
+- `DATABASE_URL` - PostgreSQL JDBC URL (default: jdbc:postgresql://localhost:5432/truck_fleet)
+- `DB_USERNAME` - Database username (default: truck_admin)
+- `DB_PASSWORD` - Database password (default: truck_secret_2024)
+- `PORT` - API port (default: 3000)
+- `CORS_ORIGIN` - Frontend URL for CORS (default: http://localhost:4200)
 
-## CI/CD
+## Prerequisites
 
-GitHub Actions with selective deployment:
-- `.github/workflows/deploy-frontend.yml` - Triggers on `apps/frontend/**` or `libs/shared/**`
-- `.github/workflows/deploy-backend.yml` - Triggers on `apps/backend/**` or `libs/shared/**`
+- **Node.js** >= 20.0.0
+- **pnpm** >= 9.0.0
+- **Java** 21 (LTS)
+- **Maven** 3.9+
+- **Docker** (for PostgreSQL)
