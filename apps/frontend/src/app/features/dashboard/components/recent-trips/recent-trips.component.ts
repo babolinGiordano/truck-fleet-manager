@@ -1,16 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-
-interface RecentTrip {
-  id: string;
-  route: string;
-  client: string;
-  vehicle: string;
-  status: 'planned' | 'in_progress' | 'completed' | 'cancelled';
-  price: number;
-  km: number;
-}
+import { Router, RouterModule } from '@angular/router';
+import { RecentTrip } from '../../../../models';
 
 @Component({
     selector: 'app-recent-trips',
@@ -22,33 +13,36 @@ interface RecentTrip {
           <span class="material-icons-outlined text-gray-500">history</span>
           <h3 class="font-semibold text-gray-800">Ultimi Viaggi</h3>
         </div>
-        <a 
-          routerLink="/trips" 
+        <a
+          routerLink="/trips"
           class="text-orange-500 hover:text-orange-600 text-sm font-medium"
         >
           Vedi tutti
         </a>
       </div>
-      
+
       <div class="divide-y divide-gray-100">
         @for (trip of trips; track trip.id) {
-          <div class="p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors cursor-pointer">
-            <div 
+          <div
+            class="p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors cursor-pointer"
+            (click)="navigateToTrip(trip.id)"
+          >
+            <div
               class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
               [ngClass]="getStatusBgClass(trip.status)"
             >
-              <span 
+              <span
                 class="material-icons-outlined"
                 [ngClass]="getStatusIconClass(trip.status)"
               >
                 {{ getStatusIcon(trip.status) }}
               </span>
             </div>
-            
+
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
                 <p class="font-medium text-gray-800">{{ trip.route }}</p>
-                <span 
+                <span
                   class="px-2 py-0.5 text-xs rounded-full"
                   [ngClass]="getStatusBadgeClass(trip.status)"
                 >
@@ -59,10 +53,13 @@ interface RecentTrip {
                 {{ trip.client }} • {{ trip.vehicle }}
               </p>
             </div>
-            
-            <div class="text-right">
-              <p class="font-medium text-gray-800">€ {{ trip.price | number:'1.0-0' }}</p>
-              <p class="text-xs text-gray-500">{{ trip.km }} km</p>
+
+            <div class="text-right flex items-center gap-3">
+              <div>
+                <p class="font-medium text-gray-800">€ {{ trip.price | number:'1.0-0' }}</p>
+                <p class="text-xs text-gray-500">{{ trip.km }} km</p>
+              </div>
+              <span class="material-icons-outlined text-gray-400 text-sm">chevron_right</span>
             </div>
           </div>
         }
@@ -71,7 +68,13 @@ interface RecentTrip {
   `
 })
 export class RecentTripsComponent {
+  private router = inject(Router);
+
   @Input() trips: RecentTrip[] = [];
+
+  navigateToTrip(tripId: string): void {
+    this.router.navigate(['/trips', tripId]);
+  }
 
   getStatusIcon(status: string): string {
     switch (status) {

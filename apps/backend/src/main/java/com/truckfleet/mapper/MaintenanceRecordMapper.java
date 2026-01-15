@@ -7,8 +7,10 @@ import com.truckfleet.entity.MaintenanceRecord;
 import com.truckfleet.entity.enums.MaintenanceStatus;
 import org.mapstruct.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -45,9 +47,19 @@ public interface MaintenanceRecordMapper {
             return null;
         }
         try {
+            // Handle ISO 8601 format with timezone (e.g., 2026-01-15T15:22:00.000Z)
+            if (dateString.endsWith("Z") || dateString.contains("+")) {
+                Instant instant = Instant.parse(dateString);
+                return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+            }
+            // Handle ISO local date-time format (e.g., 2026-01-15T15:22:00)
             return LocalDateTime.parse(dateString);
         } catch (DateTimeParseException e) {
-            return LocalDate.parse(dateString).atStartOfDay();
+            try {
+                return LocalDate.parse(dateString).atStartOfDay();
+            } catch (DateTimeParseException e2) {
+                throw new IllegalArgumentException("Invalid date format: " + dateString);
+            }
         }
     }
 

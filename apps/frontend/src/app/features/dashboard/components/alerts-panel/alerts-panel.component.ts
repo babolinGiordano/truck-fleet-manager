@@ -1,13 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Alert {
-  id: string;
-  type: 'danger' | 'warning' | 'info';
-  icon: string;
-  title: string;
-  description: string;
-}
+import { Router } from '@angular/router';
+import { DashboardAlert } from '../../../../models';
 
 @Component({
     selector: 'app-alerts-panel',
@@ -23,19 +17,20 @@ interface Alert {
           {{ alerts.length }} nuovi
         </span>
       </div>
-      
+
       <div class="p-4 space-y-3 max-h-80 overflow-y-auto">
         @for (alert of alerts; track alert.id) {
-          <div 
-            class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer 
+          <div
+            class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer
                    hover:shadow-sm transition-all"
             [ngClass]="getAlertClasses(alert.type)"
+            (click)="navigateTo(alert.link)"
           >
-            <div 
+            <div
               class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
               [ngClass]="getIconBgClass(alert.type)"
             >
-              <span 
+              <span
                 class="material-icons-outlined text-sm"
                 [ngClass]="getIconColorClass(alert.type)"
               >
@@ -46,6 +41,9 @@ interface Alert {
               <p class="text-sm font-medium text-gray-800">{{ alert.title }}</p>
               <p class="text-xs text-gray-500 mt-0.5">{{ alert.description }}</p>
             </div>
+            @if (alert.link) {
+              <span class="material-icons-outlined text-gray-400 text-sm self-center">chevron_right</span>
+            }
           </div>
         } @empty {
           <div class="text-center py-8 text-gray-500">
@@ -58,7 +56,15 @@ interface Alert {
   `
 })
 export class AlertsPanelComponent {
-  @Input() alerts: Alert[] = [];
+  private router = inject(Router);
+
+  @Input() alerts: DashboardAlert[] = [];
+
+  navigateTo(link?: string): void {
+    if (link) {
+      this.router.navigate([link]);
+    }
+  }
 
   getAlertClasses(type: string): string {
     switch (type) {

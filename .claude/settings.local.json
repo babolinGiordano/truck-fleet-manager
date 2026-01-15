@@ -36,7 +36,10 @@
       "Bash(netstat:*)",
       "Bash(cmd //c \"taskkill /F /PID 17336\")",
       "Bash(./mvnw spring-boot:run:*)",
-      "Bash(cmd.exe /c \"mvn spring-boot:run 2>&1\")"
+      "Bash(cmd.exe /c \"mvn spring-boot:run 2>&1\")",
+      "Bash(pnpm build:backend:*)",
+      "Bash(pnpm build:frontend:*)",
+      "Bash(pnpm build:*)"
     ],
     "deny": [],
     "ask": []

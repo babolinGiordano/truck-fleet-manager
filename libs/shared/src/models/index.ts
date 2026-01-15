@@ -5,3 +5,5 @@ export * from './client.model';
 export * from './invoice.model';
 export * from './fuel.model';
 export * from './maintenance.model';
+export * from './dashboard.model';
+export * from './search.model';
