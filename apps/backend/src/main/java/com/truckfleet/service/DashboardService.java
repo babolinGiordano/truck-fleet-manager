@@ -34,28 +34,79 @@ public class DashboardService {
 
     private static final String[] MONTHS_IT = {"Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"};
 
-    public DashboardResponseDto getDashboardData() {
+    /** Documents are surfaced up to 90 days ahead; within 30 they are flagged as urgent. */
+    private static final int EXPIRY_WINDOW_DAYS = 90;
+    private static final int URGENT_WITHIN_DAYS = 30;
+
+    public DashboardResponseDto getDashboardData(Integer requestedYear) {
+        List<Integer> availableYears = getAvailableYears();
+        int chartYear = resolveChartYear(requestedYear, availableYears);
+
         return DashboardResponseDto.builder()
                 .stats(getStats())
                 .alerts(getAlerts())
                 .recentTrips(getRecentTrips())
-                .chartData(getChartData())
+                .chartData(getChartData(chartYear))
+                .chartYear(chartYear)
+                .availableYears(availableYears)
+                .liveVehicles(getLiveVehicles())
                 .build();
+    }
+
+    /** Vehicles on an in-progress trip, with their last known position. */
+    private List<LiveVehicleDto> getLiveVehicles() {
+        return tripRepository.findActiveTripsWithPosition(TripStatus.IN_PROGRESS).stream()
+                .map(trip -> {
+                    Vehicle vehicle = trip.getVehicle();
+                    return LiveVehicleDto.builder()
+                            .vehicleId(vehicle.getId())
+                            .tripId(trip.getId())
+                            .plate(vehicle.getPlate())
+                            .lat(vehicle.getLastLat())
+                            .lng(vehicle.getLastLng())
+                            .route(trip.getOriginCity() + " → " + trip.getDestCity())
+                            .client(trip.getClient() != null ? trip.getClient().getCompanyName() : "N/D")
+                            .lastPositionAt(vehicle.getLastPositionAt())
+                            .build();
+                })
+                .toList();
+    }
+
+    private List<Integer> getAvailableYears() {
+        List<Integer> years = tripRepository.findYearsWithTrips();
+        // Keep the selector usable when there are no trips at all
+        return years.isEmpty() ? List.of(LocalDate.now().getYear()) : years;
+    }
+
+    /** Defaults to the current year, falling back to the most recent year that has trips. */
+    private int resolveChartYear(Integer requestedYear, List<Integer> availableYears) {
+        if (requestedYear != null && availableYears.contains(requestedYear)) {
+            return requestedYear;
+        }
+        int currentYear = LocalDate.now().getYear();
+        if (availableYears.contains(currentYear)) {
+            return currentYear;
+        }
+        return availableYears.get(0);
     }
 
     private DashboardStatsDto getStats() {
         LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+        LocalDateTime startOfToday = today.atStartOfDay();
+        LocalDateTime startOfTomorrow = today.plusDays(1).atStartOfDay();
+        LocalDateTime startOfYesterday = today.minusDays(1).atStartOfDay();
 
         LocalDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay();
         LocalDateTime endOfMonth = today.plusMonths(1).withDayOfMonth(1).atStartOfDay();
 
-        LocalDateTime startOfPrevMonth = today.minusMonths(1).withDayOfMonth(1).atStartOfDay();
-        LocalDateTime endOfPrevMonth = startOfMonth;
+        // Same elapsed span of the previous month (1st .. same day of month), so a
+        // month still in progress is not compared against a full one.
+        LocalDate sameDayPrevMonth = today.minusMonths(1);
+        LocalDateTime startOfPrevMonth = sameDayPrevMonth.withDayOfMonth(1).atStartOfDay();
+        LocalDateTime endOfPrevMonthToDate = sameDayPrevMonth.plusDays(1).atStartOfDay();
 
-        // Current month stats
-        Long tripsToday = tripRepository.countTripsToday(startOfDay, endOfDay);
+        // Current period
+        Long tripsToday = tripRepository.countTripsDeparting(startOfToday, startOfTomorrow);
         Long vehiclesInTransit = vehicleRepository.countByStatus(VehicleStatus.IN_TRANSIT);
         Long kmThisMonth = tripRepository.sumKmForMonth(startOfMonth, endOfMonth);
         BigDecimal revenueThisMonth = invoiceRepository.sumRevenueForMonth(startOfMonth, endOfMonth);
@@ -63,29 +114,22 @@ public class DashboardService {
             revenueThisMonth = BigDecimal.ZERO;
         }
 
-        // Previous month stats for trend calculation
-        Long kmPrevMonth = tripRepository.sumKmForMonth(startOfPrevMonth, endOfPrevMonth);
-        BigDecimal revenuePrevMonth = invoiceRepository.sumRevenueForMonth(startOfPrevMonth, endOfPrevMonth);
+        // Comparable previous period
+        Long tripsYesterday = tripRepository.countTripsDeparting(startOfYesterday, startOfToday);
+        Long kmPrevMonth = tripRepository.sumKmForMonth(startOfPrevMonth, endOfPrevMonthToDate);
+        BigDecimal revenuePrevMonth = invoiceRepository.sumRevenueForMonth(startOfPrevMonth, endOfPrevMonthToDate);
         if (revenuePrevMonth == null) {
             revenuePrevMonth = BigDecimal.ZERO;
         }
-
-        // Calculate trends
-        Double kmTrend = calculateTrend(kmThisMonth, kmPrevMonth);
-        Double revenueTrend = calculateTrend(revenueThisMonth, revenuePrevMonth);
-
-        // Trip trend (compare trips this month vs previous month)
-        Long tripsThisMonth = tripRepository.countByStatus(TripStatus.COMPLETED);
-        Double tripsTrend = 0.0; // Simplified: would need monthly comparison
 
         return DashboardStatsDto.builder()
                 .tripsToday(tripsToday)
                 .vehiclesInTransit(vehiclesInTransit)
                 .kmThisMonth(kmThisMonth)
                 .revenueThisMonth(revenueThisMonth)
-                .tripsTrend(tripsTrend)
-                .kmTrend(kmTrend)
-                .revenueTrend(revenueTrend)
+                .tripsTrend(calculateTrend(tripsToday, tripsYesterday))
+                .kmTrend(calculateTrend(kmThisMonth, kmPrevMonth))
+                .revenueTrend(calculateTrend(revenueThisMonth, revenuePrevMonth))
                 .build();
     }
 
@@ -108,41 +152,45 @@ public class DashboardService {
 
     private List<DashboardAlertDto> getAlerts() {
         List<DashboardAlertDto> alerts = new ArrayList<>();
+        LocalDateTime expiryWindow = LocalDateTime.now().plusDays(EXPIRY_WINDOW_DAYS);
         LocalDateTime deadline30Days = LocalDateTime.now().plusDays(30);
         LocalDateTime deadline7Days = LocalDateTime.now().plusDays(7);
 
         // Driver license expiring alerts
-        List<Driver> driversWithExpiringDocs = driverRepository.findWithExpiringDocuments(deadline30Days);
+        List<Driver> driversWithExpiringDocs = driverRepository.findWithExpiringDocuments(expiryWindow);
         for (Driver driver : driversWithExpiringDocs) {
-            String expiringDoc = getExpiringDriverDoc(driver, deadline30Days);
-            if (expiringDoc != null) {
-                long daysUntil = ChronoUnit.DAYS.between(LocalDate.now(), getEarliestDriverExpiry(driver).toLocalDate());
-                String severity = daysUntil <= 7 ? "danger" : "warning";
+            ExpiringDoc doc = getExpiringDriverDoc(driver, expiryWindow);
+            if (doc != null) {
+                long daysUntil = ChronoUnit.DAYS.between(LocalDate.now(), doc.expiry().toLocalDate());
+                boolean expired = daysUntil < 0;
                 alerts.add(DashboardAlertDto.builder()
                         .id("driver-" + driver.getId())
-                        .type(severity)
+                        .type(expired || daysUntil <= URGENT_WITHIN_DAYS ? "danger" : "warning")
                         .icon("badge")
-                        .title(expiringDoc + " in scadenza")
-                        .description(driver.getFirstName() + " " + driver.getLastName() + " - scade tra " + daysUntil + " giorni")
+                        .title(doc.label() + (expired ? " scaduta" : " in scadenza"))
+                        .description(driver.getFirstName() + " " + driver.getLastName() + " - " + formatCountdown(daysUntil))
+                        .daysUntil(daysUntil)
+                        .expired(expired)
                         .link("/drivers/" + driver.getId())
                         .build());
             }
         }
 
         // Vehicle documents expiring alerts
-        List<Vehicle> vehiclesWithExpiringDocs = vehicleRepository.findWithExpiringDocuments(deadline30Days);
+        List<Vehicle> vehiclesWithExpiringDocs = vehicleRepository.findWithExpiringDocuments(expiryWindow);
         for (Vehicle vehicle : vehiclesWithExpiringDocs) {
-            String expiringDoc = getExpiringVehicleDoc(vehicle, deadline30Days);
-            if (expiringDoc != null) {
-                LocalDateTime earliest = getEarliestVehicleExpiry(vehicle);
-                long daysUntil = ChronoUnit.DAYS.between(LocalDate.now(), earliest.toLocalDate());
-                String severity = daysUntil <= 7 ? "danger" : "warning";
+            ExpiringDoc doc = getExpiringVehicleDoc(vehicle, expiryWindow);
+            if (doc != null) {
+                long daysUntil = ChronoUnit.DAYS.between(LocalDate.now(), doc.expiry().toLocalDate());
+                boolean expired = daysUntil < 0;
                 alerts.add(DashboardAlertDto.builder()
                         .id("vehicle-" + vehicle.getId())
-                        .type(severity)
+                        .type(expired || daysUntil <= URGENT_WITHIN_DAYS ? "danger" : "warning")
                         .icon("directions_car")
-                        .title(expiringDoc + " in scadenza")
-                        .description(vehicle.getPlate() + " - scade tra " + daysUntil + " giorni")
+                        .title(doc.label() + (expired ? " scaduta" : " in scadenza"))
+                        .description(vehicle.getPlate() + " - " + formatCountdown(daysUntil))
+                        .daysUntil(daysUntil)
+                        .expired(expired)
                         .link("/vehicles/" + vehicle.getId())
                         .build());
             }
@@ -154,14 +202,17 @@ public class DashboardService {
         for (MaintenanceRecord maintenance : scheduledMaintenance) {
             if (maintenance.getNextMaintenanceDate() != null) {
                 long daysUntil = ChronoUnit.DAYS.between(LocalDate.now(), maintenance.getNextMaintenanceDate().toLocalDate());
-                String severity = daysUntil <= 7 ? "warning" : "info";
+                boolean expired = daysUntil < 0;
+                String severity = expired || daysUntil <= 7 ? "warning" : "info";
                 String vehiclePlate = maintenance.getVehicle() != null ? maintenance.getVehicle().getPlate() : "N/D";
                 alerts.add(DashboardAlertDto.builder()
                         .id("maintenance-" + maintenance.getId())
                         .type(severity)
                         .icon("build")
-                        .title("Manutenzione programmata")
+                        .title(expired ? "Manutenzione scaduta" : "Manutenzione programmata")
                         .description(vehiclePlate + " - " + maintenance.getDescription())
+                        .daysUntil(daysUntil)
+                        .expired(expired)
                         .link("/maintenance")
                         .build());
             }
@@ -172,17 +223,16 @@ public class DashboardService {
                 List.of(InvoiceStatus.SENT, InvoiceStatus.OVERDUE), deadline7Days);
         for (Invoice invoice : dueInvoices) {
             long daysUntil = ChronoUnit.DAYS.between(LocalDate.now(), invoice.getDueDate().toLocalDate());
-            String severity = daysUntil < 0 ? "danger" : "warning";
+            boolean expired = daysUntil < 0;
             String clientName = invoice.getClient() != null ? invoice.getClient().getCompanyName() : "N/D";
-            String description = daysUntil < 0
-                    ? invoice.getInvoiceNumber() + " - " + clientName + " (scaduta)"
-                    : invoice.getInvoiceNumber() + " - " + clientName;
             alerts.add(DashboardAlertDto.builder()
                     .id("invoice-" + invoice.getId())
-                    .type(severity)
+                    .type(expired ? "danger" : "warning")
                     .icon("receipt_long")
-                    .title("Fattura in scadenza")
-                    .description(description)
+                    .title(expired ? "Fattura scaduta" : "Fattura in scadenza")
+                    .description(invoice.getInvoiceNumber() + " - " + clientName + " - " + formatCountdown(daysUntil))
+                    .daysUntil(daysUntil)
+                    .expired(expired)
                     .link("/invoices/" + invoice.getId())
                     .build());
         }
@@ -205,46 +255,42 @@ public class DashboardService {
         };
     }
 
-    private String getExpiringDriverDoc(Driver driver, LocalDateTime deadline) {
-        if (driver.getLicenseExpiry() != null && driver.getLicenseExpiry().isBefore(deadline)) {
-            return "Patente";
-        }
-        if (driver.getCqcExpiry() != null && driver.getCqcExpiry().isBefore(deadline)) {
-            return "CQC";
-        }
-        if (driver.getAdrExpiry() != null && driver.getAdrExpiry().isBefore(deadline)) {
-            return "ADR";
-        }
-        return null;
-    }
+    /** Label and expiry date of a single document, kept together so they cannot diverge. */
+    private record ExpiringDoc(String label, LocalDateTime expiry) {}
 
-    private LocalDateTime getEarliestDriverExpiry(Driver driver) {
-        LocalDateTime earliest = driver.getLicenseExpiry();
-        if (driver.getCqcExpiry() != null && (earliest == null || driver.getCqcExpiry().isBefore(earliest))) {
-            earliest = driver.getCqcExpiry();
-        }
-        if (driver.getAdrExpiry() != null && (earliest == null || driver.getAdrExpiry().isBefore(earliest))) {
-            earliest = driver.getAdrExpiry();
-        }
+    private ExpiringDoc getExpiringDriverDoc(Driver driver, LocalDateTime deadline) {
+        ExpiringDoc earliest = null;
+        earliest = earlierDoc(earliest, "Patente", driver.getLicenseExpiry(), deadline);
+        earliest = earlierDoc(earliest, "CQC", driver.getCqcExpiry(), deadline);
+        earliest = earlierDoc(earliest, "ADR", driver.getAdrExpiry(), deadline);
         return earliest;
     }
 
-    private String getExpiringVehicleDoc(Vehicle vehicle, LocalDateTime deadline) {
-        if (vehicle.getInsuranceExpiry() != null && vehicle.getInsuranceExpiry().isBefore(deadline)) {
-            return "Assicurazione";
-        }
-        if (vehicle.getRevisionExpiry() != null && vehicle.getRevisionExpiry().isBefore(deadline)) {
-            return "Revisione";
-        }
-        return null;
+    private ExpiringDoc getExpiringVehicleDoc(Vehicle vehicle, LocalDateTime deadline) {
+        ExpiringDoc earliest = null;
+        earliest = earlierDoc(earliest, "Assicurazione", vehicle.getInsuranceExpiry(), deadline);
+        earliest = earlierDoc(earliest, "Revisione", vehicle.getRevisionExpiry(), deadline);
+        return earliest;
     }
 
-    private LocalDateTime getEarliestVehicleExpiry(Vehicle vehicle) {
-        LocalDateTime earliest = vehicle.getInsuranceExpiry();
-        if (vehicle.getRevisionExpiry() != null && (earliest == null || vehicle.getRevisionExpiry().isBefore(earliest))) {
-            earliest = vehicle.getRevisionExpiry();
+    private ExpiringDoc earlierDoc(ExpiringDoc current, String label, LocalDateTime expiry, LocalDateTime deadline) {
+        if (expiry == null || expiry.isAfter(deadline)) {
+            return current;
         }
-        return earliest;
+        return current == null || expiry.isBefore(current.expiry())
+                ? new ExpiringDoc(label, expiry)
+                : current;
+    }
+
+    private String formatCountdown(long daysUntil) {
+        if (daysUntil == 0) {
+            return "scade oggi";
+        }
+        long days = Math.abs(daysUntil);
+        String unit = days == 1 ? " giorno" : " giorni";
+        return daysUntil < 0
+                ? "scaduta da " + days + unit
+                : "scade tra " + days + unit;
     }
 
     private List<RecentTripDto> getRecentTrips() {
@@ -262,12 +308,12 @@ public class DashboardService {
                 .toList();
     }
 
-    private List<MonthlyTripDataDto> getChartData() {
+    private List<MonthlyTripDataDto> getChartData(int year) {
         int currentYear = LocalDate.now().getYear();
         int currentMonth = LocalDate.now().getMonthValue();
 
         // Get trip counts by month
-        List<Object[]> monthlyData = tripRepository.countTripsByMonth(currentYear);
+        List<Object[]> monthlyData = tripRepository.countTripsByMonth(year);
         Map<Integer, Long> tripsByMonth = new HashMap<>();
         for (Object[] row : monthlyData) {
             Integer month = (Integer) row[0];
@@ -278,7 +324,8 @@ public class DashboardService {
         List<MonthlyTripDataDto> chartData = new ArrayList<>();
         for (int month = 1; month <= 12; month++) {
             Long value = tripsByMonth.getOrDefault(month, 0L);
-            boolean isProjection = month > currentMonth;
+            // Only months still in the future are projections; past years have none
+            boolean isProjection = year > currentYear || (year == currentYear && month > currentMonth);
 
             chartData.add(MonthlyTripDataDto.builder()
                     .month(MONTHS_IT[month - 1])

@@ -1,25 +1,25 @@
 import {
   withHttpTransferCache
-} from "./chunk-27TYTTWN.js";
+} from "./chunk-PGWYYORU.js";
 import {
   DomRendererFactory2,
   EVENT_MANAGER_PLUGINS,
   EventManager,
   EventManagerPlugin,
   SharedStylesHost
-} from "./chunk-FPX2IRGM.js";
+} from "./chunk-KUN4P3YQ.js";
 import {
   CommonModule,
   DomAdapter,
   getDOM,
   setRootDomAdapter
-} from "./chunk-MKMXTXN4.js";
+} from "./chunk-YO6IYVSD.js";
 import {
   DOCUMENT,
   PLATFORM_BROWSER_ID,
   XhrFactory,
   parseCookieValue
-} from "./chunk-JGOZZLM3.js";
+} from "./chunk-OA3AOBMW.js";
 import {
   ApplicationModule,
   ApplicationRef,
@@ -73,10 +73,10 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-WVQ2WYJ4.js";
+} from "./chunk-RKUMHIKQ.js";
 import {
   __spreadValues
-} from "./chunk-WDMUDEB6.js";
+} from "./chunk-TXDUYLVM.js";
 
 // ../../node_modules/.pnpm/@angular+platform-browser@19.2.18_@angular+animations@19.2.18_@angular+common@19.2.18_@angula_nejozwqthahh3ft2m43bdfl67u/node_modules/@angular/platform-browser/fesm2022/browser-0WrrQdE0.mjs
 var BrowserDomAdapter = class _BrowserDomAdapter extends DomAdapter {
@@ -1299,4 +1299,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-P4SXDGD2.js.map
+//# sourceMappingURL=chunk-KNMW3XNY.js.map

@@ -16,4 +16,7 @@ public class DashboardResponseDto {
     private List<DashboardAlertDto> alerts;
     private List<RecentTripDto> recentTrips;
     private List<MonthlyTripDataDto> chartData;
+    private Integer chartYear; // Year the chart data refers to
+    private List<Integer> availableYears; // Years that actually have trips, newest first
+    private List<LiveVehicleDto> liveVehicles; // Vehicles currently on the road, with position
 }

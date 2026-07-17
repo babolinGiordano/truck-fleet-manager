@@ -38,8 +38,18 @@ import { DashboardAlert } from '../../../../models';
               </span>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-800">{{ alert.title }}</p>
-              <p class="text-xs text-gray-500 mt-0.5">{{ alert.description }}</p>
+              <div class="flex items-center gap-1.5">
+                <p class="text-sm font-medium text-gray-800">{{ alert.title }}</p>
+                @if (alert.expired) {
+                  <span class="text-[10px] font-bold uppercase tracking-wide text-red-700
+                               bg-red-100 border border-red-200 px-1.5 py-0.5 rounded">
+                    Scaduta
+                  </span>
+                }
+              </div>
+              <p class="text-xs mt-0.5" [ngClass]="alert.expired ? 'text-red-600 font-semibold' : 'text-gray-500'">
+                {{ alert.description }}
+              </p>
             </div>
             @if (alert.link) {
               <span class="material-icons-outlined text-gray-400 text-sm self-center">chevron_right</span>

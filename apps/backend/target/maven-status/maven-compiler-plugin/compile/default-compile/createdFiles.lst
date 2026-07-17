@@ -22,12 +22,14 @@ com\truckfleet\entity\enums\MaintenanceStatus.class
 com\truckfleet\entity\Invoice$InvoiceBuilder.class
 com\truckfleet\dto\fuel\UpdateFuelRecordDto.class
 com\truckfleet\mapper\ClientMapperImpl.class
+com\truckfleet\dto\dashboard\LiveVehicleDto$LiveVehicleDtoBuilder.class
 com\truckfleet\dto\dashboard\DashboardResponseDto$DashboardResponseDtoBuilder.class
 com\truckfleet\controller\FuelRecordController.class
 com\truckfleet\mapper\MaintenanceRecordMapperImpl.class
 com\truckfleet\dto\dashboard\DashboardAlertDto$DashboardAlertDtoBuilder.class
 com\truckfleet\dto\dashboard\DashboardStatsDto$DashboardStatsDtoBuilder.class
 com\truckfleet\controller\TripController.class
+com\truckfleet\service\DashboardService$ExpiringDoc.class
 com\truckfleet\service\DashboardService.class
 com\truckfleet\service\VehicleService.class
 com\truckfleet\controller\MaintenanceRecordController.class
@@ -57,6 +59,7 @@ com\truckfleet\entity\InvoiceItem.class
 com\truckfleet\dto\trip\CargoInfoDto.class
 com\truckfleet\entity\enums\InvoiceStatus.class
 com\truckfleet\mapper\DriverMapper.class
+com\truckfleet\dto\dashboard\LiveVehicleDto.class
 com\truckfleet\entity\enums\VehicleStatus.class
 com\truckfleet\dto\invoice\InvoiceItemDto.class
 com\truckfleet\service\DriverService.class

@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-01-15T16:48:43+0100",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.2 (Oracle Corporation)"
+    date = "2026-07-17T16:12:42+0200",
+    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (BellSoft)"
 )
 @Component
 public class FuelRecordMapperImpl implements FuelRecordMapper {

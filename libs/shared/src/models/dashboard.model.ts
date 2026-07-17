@@ -14,6 +14,8 @@ export interface DashboardAlert {
   icon: string;
   title: string;
   description: string;
+  daysUntil?: number;
+  expired?: boolean;
   link?: string;
 }
 
@@ -33,9 +35,23 @@ export interface MonthlyTripData {
   isProjection?: boolean;
 }
 
+export interface LiveVehicle {
+  vehicleId: string;
+  tripId: string;
+  plate: string;
+  lat: number;
+  lng: number;
+  route: string;
+  client: string;
+  lastPositionAt: string;
+}
+
 export interface DashboardResponse {
   stats: DashboardStats;
   alerts: DashboardAlert[];
   recentTrips: RecentTrip[];
   chartData: MonthlyTripData[];
+  chartYear: number;
+  availableYears: number[];
+  liveVehicles: LiveVehicle[];
 }

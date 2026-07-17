@@ -15,5 +15,7 @@ public class DashboardAlertDto {
     private String icon;
     private String title;
     private String description;
+    private Long daysUntil; // Negative when already expired
+    private Boolean expired;
     private String link; // Navigation link (e.g., /drivers/123, /vehicles/456)
 }

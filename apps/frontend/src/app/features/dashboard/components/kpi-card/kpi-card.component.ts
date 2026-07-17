@@ -27,7 +27,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
             <span class="material-icons-outlined text-sm">
               {{ trendDirection === 'up' ? 'trending_up' : 'trending_down' }}
             </span>
-            {{ trendDirection === 'up' ? '+' : '-' }}{{ trend }}%
+            {{ trendDirection === 'up' ? '+' : '-' }}{{ (trend < 0 ? -trend : trend) | number:'1.0-1':'it-IT' }}%
           </span>
         }
       </div>

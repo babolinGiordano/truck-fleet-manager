@@ -22,8 +22,8 @@ public interface TripRepository extends JpaRepository<Trip, String> {
     List<Trip> findByClientId(String clientId);
 
     // Dashboard queries
-    @Query("SELECT COUNT(t) FROM Trip t WHERE t.plannedDeparture >= :startOfDay AND t.plannedDeparture < :endOfDay")
-    Long countTripsToday(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
+    @Query("SELECT COUNT(t) FROM Trip t WHERE t.plannedDeparture >= :from AND t.plannedDeparture < :to")
+    Long countTripsDeparting(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
     @Query("SELECT COUNT(t) FROM Trip t WHERE t.status = :status")
     Long countByStatus(@Param("status") TripStatus status);
@@ -36,6 +36,14 @@ public interface TripRepository extends JpaRepository<Trip, String> {
 
     @Query("SELECT MONTH(t.plannedDeparture) as month, COUNT(t) as count FROM Trip t WHERE YEAR(t.plannedDeparture) = :year GROUP BY MONTH(t.plannedDeparture) ORDER BY month")
     List<Object[]> countTripsByMonth(@Param("year") int year);
+
+    @Query("SELECT DISTINCT YEAR(t.plannedDeparture) FROM Trip t WHERE t.plannedDeparture IS NOT NULL ORDER BY YEAR(t.plannedDeparture) DESC")
+    List<Integer> findYearsWithTrips();
+
+    @Query("SELECT t FROM Trip t JOIN FETCH t.vehicle v LEFT JOIN FETCH t.client "
+         + "WHERE t.status = :status AND v.lastLat IS NOT NULL AND v.lastLng IS NOT NULL "
+         + "ORDER BY v.lastPositionAt DESC")
+    List<Trip> findActiveTripsWithPosition(@Param("status") TripStatus status);
 
     // Search query
     @Query("SELECT t FROM Trip t LEFT JOIN FETCH t.client WHERE " +

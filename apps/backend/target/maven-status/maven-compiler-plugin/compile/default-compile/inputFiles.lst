@@ -17,6 +17,7 @@ C:\Users\Overdata\projects\personal\truck-fleet-manager\apps\backend\src\main\ja
 C:\Users\Overdata\projects\personal\truck-fleet-manager\apps\backend\src\main\java\com\truckfleet\dto\dashboard\DashboardAlertDto.java
 C:\Users\Overdata\projects\personal\truck-fleet-manager\apps\backend\src\main\java\com\truckfleet\dto\dashboard\DashboardResponseDto.java
 C:\Users\Overdata\projects\personal\truck-fleet-manager\apps\backend\src\main\java\com\truckfleet\dto\dashboard\DashboardStatsDto.java
+C:\Users\Overdata\projects\personal\truck-fleet-manager\apps\backend\src\main\java\com\truckfleet\dto\dashboard\LiveVehicleDto.java
 C:\Users\Overdata\projects\personal\truck-fleet-manager\apps\backend\src\main\java\com\truckfleet\dto\dashboard\MonthlyTripDataDto.java
 C:\Users\Overdata\projects\personal\truck-fleet-manager\apps\backend\src\main\java\com\truckfleet\dto\dashboard\RecentTripDto.java
 C:\Users\Overdata\projects\personal\truck-fleet-manager\apps\backend\src\main\java\com\truckfleet\dto\driver\CreateDriverDto.java

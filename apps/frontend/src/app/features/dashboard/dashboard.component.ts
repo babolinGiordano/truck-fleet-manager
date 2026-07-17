@@ -29,10 +29,17 @@ export class DashboardComponent implements OnInit {
   alerts = this.dashboardService.alerts;
   recentTrips = this.dashboardService.recentTrips;
   chartData = this.dashboardService.chartData;
+  chartYear = this.dashboardService.chartYear;
+  availableYears = this.dashboardService.availableYears;
+  liveVehicles = this.dashboardService.liveVehicles;
   loading = this.dashboardService.loading;
   error = this.dashboardService.error;
 
   ngOnInit(): void {
     this.dashboardService.loadDashboard();
+  }
+
+  onYearChange(year: number): void {
+    this.dashboardService.loadChartYear(year);
   }
 }

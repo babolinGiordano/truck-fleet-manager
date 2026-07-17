@@ -1,4 +1,4 @@
-import "./chunk-WDMUDEB6.js";
+import "./chunk-TXDUYLVM.js";
 
 // ../../node_modules/.pnpm/@angular+common@19.2.18_@angular+core@19.2.18_rxjs@7.8.2_zone.js@0.15.1__rxjs@7.8.2/node_modules/@angular/common/locales/it.js
 var u = void 0;

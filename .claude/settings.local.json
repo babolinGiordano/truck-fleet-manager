@@ -39,7 +39,21 @@
       "Bash(cmd.exe /c \"mvn spring-boot:run 2>&1\")",
       "Bash(pnpm build:backend:*)",
       "Bash(pnpm build:frontend:*)",
-      "Bash(pnpm build:*)"
+      "Bash(pnpm build:*)",
+      "PowerShell(foreach \\($c in @\\('node','pnpm','java','mvn','docker'\\)\\) { $cmd = Get-Command $c -ErrorAction SilentlyContinue; if \\($cmd\\) { \"$c -> $\\($cmd.Source\\)\" } else { \"$c -> NON TROVATO\" } })",
+      "PowerShell(java *)",
+      "PowerShell(docker ps *)",
+      "PowerShell($p='C:\\\\Users\\\\Overdata\\\\projects\\\\personal\\\\truck-fleet-manager\\\\apps\\\\backend\\\\src\\\\main\\\\resources\\\\db\\\\migration\\\\V1__init_schema.sql'; \"righe: \" + \\(Get-Content $p | Measure-Object -Line\\).Lines; \\(Select-String -Path $p -Pattern 'INSERT INTO' | Measure-Object\\).Count.ToString\\(\\) + \" statement INSERT \\(seed\\)\"; \"--- Docker Desktop installato? ---\"; if \\(Test-Path 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe'\\) { 'Docker Desktop.exe presente' } else { 'Docker Desktop.exe NON trovato' }; if \\(Get-Process 'Docker Desktop' -ErrorAction SilentlyContinue\\) { 'processo in esecuzione' } else { 'processo NON in esecuzione' })",
+      "PowerShell(Start-Process 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe'; \"Docker Desktop avviato, attendo il daemon...\")",
+      "PowerShell(pnpm docker:up *)",
+      "PowerShell(docker exec truck-fleet-db *)",
+      "PowerShell(pnpm dev *)",
+      "PowerShell(\"--- GET /api/vehicles ---\"; try { $r = Invoke-WebRequest -Uri 'http://localhost:3000/api/vehicles' -UseBasicParsing; \"HTTP $\\($r.StatusCode\\)\"; $j = $r.Content | ConvertFrom-Json; \"elementi: $\\($j.Count\\)\"; $j | Select-Object -First 2 | ConvertTo-Json -Depth 2 } catch { \"ERRORE: $_\" }; \"--- GET frontend ---\"; try { $f = Invoke-WebRequest -Uri 'http://localhost:4200' -UseBasicParsing; \"HTTP $\\($f.StatusCode\\), $\\($f.Content.Length\\) byte\" } catch { \"ERRORE: $_\" }2)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri 'http://localhost:3000/api/dashboard' -UseBasicParsing; $j = $r.Content | ConvertFrom-Json; \"--- ALERTS \\($\\($j.alerts.Count\\)\\) ---\"; $j.alerts | ForEach-Object { \"[$\\($_.type\\)] $\\($_.title\\) :: $\\($_.description\\)\" }; \"--- STATS ---\"; $j.stats | ConvertTo-Json } catch { \"ERRORE: $_\" })",
+      "PowerShell(mvn *)",
+      "PowerShell(pnpm build:frontend *)",
+      "Bash(python -c ' *)",
+      "PowerShell(Get-Process *)"
     ],
     "deny": [],
     "ask": []
