@@ -1,0 +1,72 @@
+# Deploy di produzione: VM Ubuntu dietro CG-NAT, esposta via Cloudflare Tunnel.
+# NESSUNA porta pubblicata verso l'host: l'unico container che esce e' cloudflared,
+# e lo fa con una connessione uscente verso Cloudflare (nessun port forwarding).
+#
+#   avvio:  docker compose -f docker-compose.prod.yml up -d --build
+
+name: truck-fleet-prod
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: truck-fleet-db-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-truck_admin}
+      # quotato: il messaggio di errore contiene ':' e senza quote rompe il parsing YAML
+      POSTGRES_PASSWORD: "${DB_PASSWORD:?DB_PASSWORD mancante - copia .env.example in .env e compilalo}"
+      POSTGRES_DB: ${DB_NAME:-truck_fleet}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-truck_admin} -d ${DB_NAME:-truck_fleet}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks: [internal]
+
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: truck-fleet-api-prod
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # hostname "postgres" = nome del servizio sulla rete interna
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-truck_fleet}
+      DB_USERNAME: ${DB_USERNAME:-truck_admin}
+      DB_PASSWORD: "${DB_PASSWORD:?DB_PASSWORD mancante}"
+      PORT: "3000"
+      CORS_ORIGIN: "https://${APP_DOMAIN:?APP_DOMAIN mancante}"
+      TZ: Europe/Rome
+    networks: [internal]
+
+  frontend:
+    build:
+      context: .                        # root: il Dockerfile ha bisogno del workspace
+      dockerfile: apps/frontend/Dockerfile
+    container_name: truck-fleet-web-prod
+    restart: unless-stopped
+    depends_on:
+      - backend                         # nginx risolve "backend" all'avvio: il container deve esistere
+    networks: [internal]
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: truck-fleet-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token "${TUNNEL_TOKEN:?TUNNEL_TOKEN mancante}"
+    depends_on:
+      - frontend
+    networks: [internal]
+
+volumes:
+  postgres_data:                        # -> truck-fleet-prod_postgres_data (separato dal volume di dev)
+
+networks:
+  internal:
+    driver: bridge
